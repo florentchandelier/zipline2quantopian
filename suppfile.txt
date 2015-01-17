@@ -1,0 +1,21 @@
+Part 1: DESCRIPTION OF THE REQUIREMENTS OF SUBSEQUENT WORK CHANGES
+
+	a) You must cause all Covered Code to which you contribute to contain documented changes You made to create that Covered Code and the date of any change.
+		1) Through the Designated Website mentioned in this license, that is GIT-compliant so as to ease and automate the process of documenting changes to Covered Code. 
+		   Each subsequent contributor may enquire to florent@hushmail.com for information to commit changes through that GIT repository and fork a specific version.
+		2) Through a file documenting the changes You made of the Covered Code and the date of any change if 'Part 1: a.1)' has not been chosen as a prefered mechanism to 
+		   track such changes. HOWEVER, if such route has been chosen by a Subsequent Contributor, he/she must submit the entirety of his/her Covered Code to the Initial Contributor
+		   through the Designated Website or his email address.
+
+	b) You must include a prominent statement that the Modification is derived, directly or indirectly, from the Original material provided
+		by the Initial Contributor, including the name(s) of the Initial & Subsequent Contributor(s) in (a) the Source Code, and (b) any notice in an Executable version
+		or related documentation in which You describe the origin or ownership of the Covered Code.
+		
+Part 2: PROMINENT DISPLAY OF ATTRIBUTION INFORMATION
+
+	a) There is no requirement for the Initial Contributor's attribution information each time an executable program resulting from the Initial Work 
+		or any Subsequent Work is launched or run.
+		
+	b) There is a requirement for the Initial Contributor's attribution information on any information accompanying an executable program resulting from the Initial Work 
+		or any Subsequent Work, such as (but not limited to) documentation, help & support & tutorial resources and licenses.
+
