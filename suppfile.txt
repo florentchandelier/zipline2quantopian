@@ -16,6 +16,6 @@ Part 2: PROMINENT DISPLAY OF ATTRIBUTION INFORMATION
 	a) There is no requirement for the Initial Contributor's attribution information each time an executable program resulting from the Initial Work 
 		or any Subsequent Work is launched or run.
 		
-	b) There is a requirement for the Initial Contributor's attribution information on any information accompanying an executable program resulting from the Initial Work 
+	b) There is a requirement for the Initial Contributor's attribution information on any information accompanying a program, executing locally or remotely, resulting from the Initial Work 
 		or any Subsequent Work, such as (but not limited to) documentation, help & support & tutorial resources and licenses.
 
