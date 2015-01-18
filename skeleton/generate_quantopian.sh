@@ -16,7 +16,8 @@ output_file=$4
 # > concatenate in a new file
 echo "## Exported with zipline2quantopian (c) Florent chandelier - https://github.com/florentchandelier/zipline2quantopian ##" > $output_file
 
-for quantopian_file in $(find "$dir_quantopian_import" -type f -name '*.py')
+# find -h allows to Cause the file information and file type (see stat(2)) returned for each symbolic link specified on the command line to be those of the file referenced by the link, not the link itself
+for quantopian_file in $(find -H "$dir_quantopian_import" -type f -name '*.py')
 do
 	# include only files containing quantopian
 	if ( echo $quantopian_file | egrep -i "quantopian") #grep -q "import"
@@ -32,7 +33,7 @@ do
 done
 
 # list all files in the strategy directory
-for main_file in $(find "$dir_strategy" -type f -name '*.py')
+for main_file in $(find -H "$dir_strategy" -type f -name '*.py')
 do
 	# exclude files containing import or init
 	if !( echo $main_file | egrep -i "import|init") #grep -q "import"
@@ -45,7 +46,7 @@ do
 	fi
 done
 
-for generic_function in $(find "$dir_generic_func" -type f -name '*.py')
+for generic_function in $(find -H "$dir_generic_func" -type f -name '*.py')
 do
 	if !( echo $generic_function | egrep -i "import|init") 
 	then 
