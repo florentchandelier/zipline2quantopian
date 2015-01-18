@@ -1,4 +1,4 @@
-RATIONAL FOR THE PROPOSED SKELETON
+# RATIONAL FOR THE PROPOSED SKELETON
 
 [TESTED ON LINUX ONLY]
 
@@ -26,3 +26,8 @@ The specific objective of having a directory *generic_module* is to maintain a s
 ./ats_name.py -> spyder-compatible script calling and importing the module specific to the ATS (located in the ats_name directory), and eventually adapting the financial instrument fetch & load procedure (refer to the portion of the code with comments specific to fetch/load instruments and the example). 
 
 ./ats_name
+
+# RECOMMENDATION
+I would suggest to symlink the skeleton structure of the git-pull repo during your strategy design, in order to maintain separately the skeleton elements (benefiting from updates and retaining the ability to commit improvements), and your private strategies' elements. You may use the following command:
+
+$ ln -s ../../lib/zipline2quantopian/skeleton/* ./
