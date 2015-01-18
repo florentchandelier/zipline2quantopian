@@ -76,5 +76,5 @@ with its supplement file [SUPPFILE.txt](suppfile.txt).
 
 *Why APL V1.0?* It provides the means for the initial contributor to specify his/her intention by fine-tuning parts of the license. In addition, **section *3.6* grants independent modules with separate license agreements** which opens broad alternatives for any contributors beyond that of other so-called viral licenses. 
 
-# INVESTMENT DISCLAIMER, RISKS and WARNINGS
+## INVESTMENT DISCLAIMER, RISKS and WARNINGS
 REFER TO [Investment Disclaimer, Risks and Warnings](RisksWarnings.md) FOR DETAILS.
