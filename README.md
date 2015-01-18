@@ -34,7 +34,7 @@ $ ./generate_quantopian.sh "p_switching" "generic_modules" "global_import" "p_sw
 
 The comparison between zipline and quantopian backtests is as follows:
 
-![Output](https://github.com/florentchandelier/zipline2quantopian/blob/master/example/p_switching/results_zipline_quantopian.jpg?raw=true)
+![Output](https://github.com/florentchandelier/zipline2quantopian/blob/master/example/paired_switching/results_zipline_quantopian.jpg?raw=true)
 
 ### CODE/GIT CONVENTIONS
 (eventually, not yet decided: The overall git branching model shall follow the well-illustrated [successful git branching model](http://nvie.com/posts/a-successful-git-branching-model/).)
