@@ -1,3 +1,4 @@
+## Exported with zipline2quantopian (c) Florent chandelier - https://github.com/florentchandelier/zipline2quantopian ##
 import math
 import pandas as pd
 import numpy as np
@@ -8,7 +9,7 @@ import pytz
 from zipline.api import get_environment
  
 
- #### Next File ###
+ #### Next File  ###
 
 '''
 OBJECTIVE

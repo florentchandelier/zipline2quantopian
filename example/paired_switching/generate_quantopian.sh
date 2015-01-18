@@ -13,6 +13,7 @@ dir_generic_func=$2 # default is generic_modules
 dir_quantopian_import=$3 # default is global_import
 output_file=$4 
 
+echo "## Exported with zipline2quantopian (c) Florent chandelier - https://github.com/florentchandelier/zipline2quantopian ##" >  $output_file
 for quantopian_file in $(find "$dir_quantopian_import" -type f -name '*.py')
 do
 	# include only files containing quantopian
@@ -20,9 +21,9 @@ do
 	then
 		# remove the first line of each file (containing the import)
 		# > concatenate in a new file
-		tail -n +2 $quantopian_file > $output_file
+		tail -n +2 $quantopian_file >> $output_file
 		# >> append to current file
-		echo " \n\n #### Next File ###"  >>  $output_file
+		echo " \n\n #### Next File  ###"  >>  $output_file
 	else
 		printf "\n discarding $quantopian_file"
 	fi
