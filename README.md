@@ -13,33 +13,11 @@ A primary objective for this repo is to provide a linux skeleton enabling Spyder
 A secondary objective is to provide a linux skeleton enabling the **automated generation for single-file Quantopian strategyies, from a strategy designed in Zipline, involving multiple files (as traditionally accepted)**.
 
 ## PROPOSED SKELETON STRUCTURE
-The automatic aggretation of multiple Spyder-comptible files, for running in Zipline, into a single Quantopian-compatible file, is based on few constrains enbaling the script *generate_quantopian.sh* to automatically address the stated objectives:
-
-1. each folder containing codes/files to be aggregated should contain the **necessary_import.py** script.
-2. said necessary_import.py script should only redirect to a directory global_import; said global_import directory should separate Zipline-only imports, from imports required by both Zipline and Quantopian, that should be part of the final single quantopian-compatible file.
-4. **the first line of every module (file) to be imported should start by importing the necessary_import.py file**; this allows the **generate_quantopian.sh script to remove the first line** of every file aggregated and provide a clean quantopian-compatible file.
-5. there should be at least a directory containing the core of the strategy, named after said strategy for clarity. Specifically, because this would not be part of the Skeleton per say, it allows maintaining in sync future improvements in the Skeleton to each of one's project by git pulling updates.
-
-**Generic structure**
-
-./
-
-./generate_quantopian.sh -> script to aggregate multiple ATS files into a single Quantopian-compatible file
-
-./global_import -> used to separate what is zipline specific, and required for Quantopian compatibility
-
-./generic_modules -> used to maintain generic/redundant code between different ATS design
-
-The specific objective of having a directory *generic_module* is to maintain a single copy of different modules that are systematically (or almost) used across different ATS designs. This allows to properly maintain core functions, where the correction of a bug at one point in time is automatically applied to all ATS. Similarly, the more one use the same code, the less error prone as the more possibility to identify pitfalls.
-
-**ATS specific structure**
-
-./ats_name.py -> spyder-compatible script calling and importing the module specific to the ATS (located in the ats_name directory), and eventually adapting the financial instrument fetch & load procedure (refer to the portion of the code with comments specific to fetch/load instruments and the example). 
-
-./ats_name
+A rational for the proposed skeleton structure is detailed in [skeleton_structure.txt](skeleton/skeleton_structure.txt)
 
 
 ## USAGE
+[TESTED ON LINUX ONLY]
 - $ ./generate_quantopian [arg1=dir_strategy] [arg2=dir_generic_function] [arg3=dir_quantopian_import] [arg4=output file name]
 
 with the example code provided:
@@ -50,7 +28,13 @@ with the example code provided:
 ### Directories
 The **Skeleton directory** contains the minimal files structure necessary to realize the previous objectives. Although it can easily be expanded (more files and more directories), kindly note that the automatic aggregation of multiple files into a single quantopian-compatible ATS should respect the stated design requirements.
 
-The **Example directory** contains a functional ATS example, written in a manner compttible with proposed skeleton, and respecting the stated contrains. The ATS is thus compatible with Zipline, and can be automatically exported in a single file compatible with Quantopian. The example ATS is that of [*Paired-switching for tactical portfolio allocation*](http://papers.ssrn.com/sol3/papers.cfm?abstract_id=1917044).
+The **Example directory** contains a functional ATS example, written in a manner compatible with the proposed skeleton. The ATS is thus compatible with Zipline, and can be automatically exported in a single file compatible with Quantopian. The example ATS is that of [*Paired-switching for tactical portfolio allocation*](http://papers.ssrn.com/sol3/papers.cfm?abstract_id=1917044). The resulting Quantopian file is p_switching_quantopian.py and was obtained by the following command-line:
+
+$ ./generate_quantopian.sh "p_switching" "generic_modules" "global_import" "p_switching_quantopian.py"
+
+The comparison between zipline and quantopian backtests is as follows:
+
+![Output](https://github.com/florentchandelier/zipline2quantopian/blob/master/example/p_switching/results_zipline_quantopian.jpg?raw=true)
 
 ### CODE/GIT CONVENTIONS
 (eventually, not yet decided: The overall git branching model shall follow the well-illustrated [successful git branching model](http://nvie.com/posts/a-successful-git-branching-model/).)
