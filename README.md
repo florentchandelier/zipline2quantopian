@@ -23,6 +23,11 @@ A rational for the proposed skeleton structure is detailed in [skeleton_structur
 with the example code provided:
 - $ ./generate_quantopian.sh "./p_switching" "./generic_modules" "./global_import" "q_p_switching.py"
 
+## RECOMMENDATION
+I would suggest to symlink the skeleton structure of the git-pull repo during your strategy design, in order to maintain separately the skeleton elements (benefiting from updates and retaining the ability to commit improvements), and your private strategies' elements. You may use the following command:
+
+$ ln -s ../../lib/zipline2quantopian/skeleton/* ./
+
 ## CODE LAYOUT and DIRECTORIES
 
 ### Directories
