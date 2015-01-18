@@ -34,6 +34,8 @@ The specific objective of having a directory *generic_module* is to maintain a s
 
 **ATS specific structure**
 
+./ats_name.py -> spyder-compatible script calling and importing the module specific to the ATS (located in the ats_name directory), and eventually adapting the financial instrument fetch & load procedure (refer to the portion of the code with comments specific to fetch/load instruments and the example). 
+
 ./ats_name
 
 
