@@ -28,6 +28,8 @@ I would suggest to symlink the skeleton structure of the git-pull repo during yo
 
 $ ln -s ../../lib/zipline2quantopian/skeleton/* ./
 
+To create the example directory, I did create the strategy directory, then *$ ln -s ../../skeleton/* ./* into it, and further add the strategy directory and main zipline file.
+
 ## CODE LAYOUT and DIRECTORIES
 
 ### Directories
@@ -39,7 +41,7 @@ $ ./generate_quantopian.sh "p_switching" "generic_modules" "global_import" "p_sw
 
 The comparison between zipline and quantopian backtests is as follows:
 
-![Output](https://github.com/florentchandelier/zipline2quantopian/blob/master/example/paired_switching/results_zipline_quantopian.jpg?raw=true)
+![Output](https://github.com/florentchandelier/zipline2quantopian/blob/master/example/paired_switching_strategy/results_zipline_quantopian.jpg?raw=true)
 
 ### CODE/GIT CONVENTIONS
 (eventually, not yet decided: The overall git branching model shall follow the well-illustrated [successful git branching model](http://nvie.com/posts/a-successful-git-branching-model/).)
