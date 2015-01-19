@@ -11,6 +11,17 @@ def get_cagr(context, data):
     context.cagr_period += 1
     if (context.cagr_period % 12 == 0):
         # portf_value: Sum value of all open positions and ending cash balance. 
-        cagr = np.power(context.portfolio.portfolio_value/float(context.portfolio.starting_cash), 1/float(context.cagr_period/12) )-1
+        initial_value = float(context.portf_allocation*context.portfolio.starting_cash)
+        current_value = float(context.portfolio.portfolio_value - (context.portfolio.starting_cash-initial_value) )
+        cagr = np.power(current_value/initial_value, 1/float(context.cagr_period/12) )-1
         print("CAGR = " +str(cagr))
     return
+    
+def check_cash_status(context):
+    
+    if context.portfolio.cash < 0:
+        if context.env is 'quantopian':
+            log.info("Negative Cash Balance = %4.2f" % (context.portfolio.cash) )
+        else:
+            print("Negative Cash Balance = %4.2f" % (context.portfolio.cash))
+    pass
