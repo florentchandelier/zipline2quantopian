@@ -18,11 +18,17 @@ A rational for the proposed skeleton structure is detailed in [skeleton_structur
 [note] a cleaner way would be to create a package structure such as:
 
 zipline2quantopian
+
 ./quantopian ; output for script
+
 ./zipline
+
 ./zipline/global_import
+
 ./zipline/strategies ; containing the core of the strategies
+
 ./zipline/main ; containing the main used in spyder only
+
 ./zipline/generic_module
 
 The objective with such structure would be to enhance the script creating the quantopian output by automatically parsing folder and generating proper filename for quantopian output. currenlty, I cannot make the import work in such structure !@#$
