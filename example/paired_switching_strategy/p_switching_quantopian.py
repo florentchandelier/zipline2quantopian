@@ -56,8 +56,14 @@ def initialize(context):
     context.periodCount = 0
     
     context.cagr_period = 0
+    context.portf_allocation = 0.9
     
-    try:  # check for Quantopian
+    context.env = get_environment('platform')
+    context.max_priceslippage = 1+(float(0.5)/100) # used to protect against spikes
+    
+    
+    if context.env is 'quantopian': 
+
     	set_commission(commission.PerTrade(cost=4.0))
     	set_slippage(slippage.FixedSlippage(spread=0.00))
     	schedule_function(ordering_logic,
@@ -67,8 +73,7 @@ def initialize(context):
 	schedule_function(get_cagr,
                       date_rule=date_rules.month_start(),
                       time_rule=time_rules.market_open(hours=5, minutes=0))
-                      
-    except:  # running Zipline (or my error above)
+    elif context.env is 'zipline':
         
     	context.set_commission(commission.PerTrade(cost=4.0))
     	context.set_slippage(slippage.FixedSlippage(spread=0.00))
@@ -80,7 +85,7 @@ def initialize(context):
                       date_rule=date_rules.month_start(),
                       time_rule=time_rules.market_open(hours=0, minutes=15))
                       
-        context.startDate = datetime(2004, 1, 1, 0, 0, 0, 0, pytz.utc)
+        context.startDate = datetime(2012, 1, 1, 0, 0, 0, 0, pytz.utc)
         context.endDate = datetime(2014, 1, 1, 0, 0, 0, 0, pytz.utc)
      
                       
@@ -106,16 +111,17 @@ def allin (stockid, context, data):
         context.nbSwitch +=1
         print("Date "+ str(data[context.stocks[0]].datetime) +"   Switch Nb: " +str(context.nbSwitch))
         if (stockid == 0):
-            order_target_percent(context.stocks[stockid], 1)
+            order_target_percent(context.stocks[stockid], 1 *context.portf_allocation)
             order_target_percent(context.stocks[1], 0)
         else:
-            order_target_percent(context.stocks[stockid], 1)
+            order_target_percent(context.stocks[stockid], 1 *context.portf_allocation)
             order_target_percent(context.stocks[0], 0)                     
     
     pass
     
 def handle_data(context, data):
     # visually check for tapping in the margin
+    check_cash_status(context) 
     record(leverage=context.account.leverage)
     return
  
@@ -147,9 +153,20 @@ def get_cagr(context, data):
     context.cagr_period += 1
     if (context.cagr_period % 12 == 0):
         # portf_value: Sum value of all open positions and ending cash balance. 
-        cagr = np.power(context.portfolio.portfolio_value/float(context.portfolio.starting_cash), 1/float(context.cagr_period/12) )-1
+        initial_value = float(context.portf_allocation*context.portfolio.starting_cash)
+        current_value = float(context.portfolio.portfolio_value - (context.portfolio.starting_cash-initial_value) )
+        cagr = np.power(current_value/initial_value, 1/float(context.cagr_period/12) )-1
         print("CAGR = " +str(cagr))
     return
+    
+def check_cash_status(context):
+    
+    if context.portfolio.cash < 0:
+        if context.env is 'quantopian':
+            log.info("Negative Cash Balance = %4.2f" % (context.portfolio.cash) )
+        else:
+            print("Negative Cash Balance = %4.2f" % (context.portfolio.cash))
+    pass
  
 
  #### Next File ###

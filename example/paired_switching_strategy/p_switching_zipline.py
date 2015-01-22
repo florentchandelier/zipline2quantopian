@@ -24,5 +24,7 @@ if __name__ == '__main__':
     #
     
     results = algo.run(data)
-    plot_portfolio(results)
-
+    plot_portfolio(results, algo)
+  
+#    results.pnl ; results.returns
+    algo.perf_tracker.cumulative_risk_metrics
