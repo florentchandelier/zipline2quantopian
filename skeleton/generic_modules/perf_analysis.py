@@ -24,4 +24,4 @@ def check_cash_status(context):
             log.info("Negative Cash Balance = %4.2f" % (context.portfolio.cash) )
         else:
             print("Negative Cash Balance = %4.2f" % (context.portfolio.cash))
-    pass
+    return
