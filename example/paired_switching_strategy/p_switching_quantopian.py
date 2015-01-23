@@ -58,17 +58,17 @@ def initialize(context):
     context.cagr_period = 0
     context.portf_allocation = 0.9
     
-    context.env = get_environment('platform')
-    context.max_priceslippage = 1+(float(0.5)/100) # used to protect against spikes
+    context.max_priceslippage = (float(0.5)/100)     
+    context.limit_order = False 
     
-    
+    context.env = get_environment('platform')    
     if context.env is 'quantopian': 
 
     	set_commission(commission.PerTrade(cost=4.0))
     	set_slippage(slippage.FixedSlippage(spread=0.00))
     	schedule_function(ordering_logic,
                       date_rule=date_rules.month_start(),
-                      time_rule=time_rules.market_open(hours=0, minutes=15))
+                      time_rule=time_rules.market_open(hours=1, minutes=0))
                       
 	schedule_function(get_cagr,
                       date_rule=date_rules.month_start(),
@@ -79,15 +79,16 @@ def initialize(context):
     	context.set_slippage(slippage.FixedSlippage(spread=0.00))
     	context.schedule_function(ordering_logic,
                       date_rule=date_rules.month_start(),
-                      time_rule=time_rules.market_open(hours=0, minutes=15))
+                      time_rule=time_rules.market_open(hours=1, minutes=0))
                       
 	context.schedule_function(get_cagr,
                       date_rule=date_rules.month_start(),
-                      time_rule=time_rules.market_open(hours=0, minutes=15))
+                      time_rule=time_rules.market_open(hours=5, minutes=0))
                       
-        context.startDate = datetime(2012, 1, 1, 0, 0, 0, 0, pytz.utc)
+        context.startDate = datetime(2008, 1, 1, 0, 0, 0, 0, pytz.utc)
         context.endDate = datetime(2014, 1, 1, 0, 0, 0, 0, pytz.utc)
-     
+        
+    return
                       
 def ordering_logic(context, data):
     
@@ -100,24 +101,35 @@ def ordering_logic(context, data):
         else:
             allin(1,context, data)     
     
-    pass
+    return
     
 def allin (stockid, context, data):
     status = context.portfolio.positions[context.stocks[stockid]].amount
     if status > 0:
         # do nothing, we are already invested
         pass
+    
     else:
         context.nbSwitch +=1
         print("Date "+ str(data[context.stocks[0]].datetime) +"   Switch Nb: " +str(context.nbSwitch))
+        
+        up = context.stocks[stockid]
         if (stockid == 0):
-            order_target_percent(context.stocks[stockid], 1 *context.portf_allocation)
-            order_target_percent(context.stocks[1], 0)
+            dwn = context.stocks[1]
         else:
-            order_target_percent(context.stocks[stockid], 1 *context.portf_allocation)
-            order_target_percent(context.stocks[0], 0)                     
+            dwn = context.stocks[0]
+        
+        if context.limit_order:
+            lp1 = round(data[up].price*(1 +context.max_priceslippage),2)
+            lp2 = round(data[dwn].price*(1 -context.max_priceslippage),2)
+        
+            order_target_percent(up, 1 *context.portf_allocation, style=LimitOrder(limit_price =lp1))
+            order_target_percent(dwn, 0, style=LimitOrder(limit_price =lp2))  
+        else:
+            order_target_percent(up, 1 *context.portf_allocation)
+            order_target_percent(dwn, 0)                  
     
-    pass
+    return
     
 def handle_data(context, data):
     # visually check for tapping in the margin
@@ -166,7 +178,7 @@ def check_cash_status(context):
             log.info("Negative Cash Balance = %4.2f" % (context.portfolio.cash) )
         else:
             print("Negative Cash Balance = %4.2f" % (context.portfolio.cash))
-    pass
+    return
  
 
  #### Next File ###
