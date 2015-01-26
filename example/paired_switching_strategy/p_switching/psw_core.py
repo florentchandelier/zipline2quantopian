@@ -48,10 +48,10 @@ def initialize(context):
     context.portf_allocation = 0.9
     
     context.max_priceslippage = (float(0.5)/100)     
-    context.limit_order = False 
+    
     
     context.env = get_environment('platform')    
-    if context.env is 'quantopian': 
+    if context.env == 'quantopian': 
 
     	set_commission(commission.PerTrade(cost=4.0))
     	set_slippage(slippage.FixedSlippage(spread=0.00))
@@ -62,7 +62,7 @@ def initialize(context):
 	schedule_function(get_cagr,
                       date_rule=date_rules.month_start(),
                       time_rule=time_rules.market_open(hours=5, minutes=0))
-    elif context.env is 'zipline':
+    elif context.env == 'zipline':
         
     	context.set_commission(commission.PerTrade(cost=4.0))
     	context.set_slippage(slippage.FixedSlippage(spread=0.00))
@@ -74,9 +74,32 @@ def initialize(context):
                       date_rule=date_rules.month_start(),
                       time_rule=time_rules.market_open(hours=5, minutes=0))
                       
-        context.startDate = datetime(2008, 1, 1, 0, 0, 0, 0, pytz.utc)
+        context.startDate = datetime(2003, 1, 1, 0, 0, 0, 0, pytz.utc)
         context.endDate = datetime(2014, 1, 1, 0, 0, 0, 0, pytz.utc)
-        
+    
+    '''
+    get_environment(field='platform')
+    Returns information about the environment in which the backtest or live algorithm is running.
+    If no parameter is passed, the platform value is returned. Pass * to get all the values returned in a dictionary.
+    To use this method when running Zipline standalone, import get_environment from the zipline.api library.
+
+    Parameters
+    arena: Returns IB, live (paper trading), or backtest.
+    data_frequency: Returns minute or daily.
+    start: Returns the UTC datetime for start of backtest. In IB and live arenas, this is when the live algorithm was deployed.
+    end: Returns the UTC datetime for end of backtest. In IB and live arenas, this is the trading day's close datetime.
+    capital_base: Returns the float of the original capital in USD.
+    platform: Returns the platform running the algorithm: quantopian or zipline.   
+    '''
+    context.limit_order = None
+    if get_environment('arena') == 'backtest':
+        if get_environment('data_frequency') == 'daily':
+            context.limit_order = False
+        elif get_environment('data_frequency') == 'minute':
+            context.limit_order = True
+    elif get_environment('arena') == 'live' or get_environment('arena') == 'IB':
+        context.limit_order = True
+    
     return
                       
 def ordering_logic(context, data):
