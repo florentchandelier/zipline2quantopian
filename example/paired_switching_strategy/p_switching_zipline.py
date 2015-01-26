@@ -4,7 +4,6 @@ from p_switching.psw_core import *
 
 
 if __name__ == '__main__':
- 
     algo = TradingAlgorithm(initialize=initialize, handle_data=handle_data, capital_base = 10000)
     
     #
