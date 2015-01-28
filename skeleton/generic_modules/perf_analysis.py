@@ -26,42 +26,41 @@ def check_cash_status(context):
             print("Negative Cash Balance = %4.2f" % (context.portfolio.cash))
     return
     
-def from_through_to_depth_through(x, thresh_dd=0, first_n=0):
+def from_trough_to_depth_trough(results, thresh_dd=0, first_n=0):
     '''
      query the table for all drawdowns that were more than thres_dd%, 
      or the first_n biggest drawdowns;
      # http://stackoverflow.com/questions/27060037/pandas-way-to-groupby-like-itertools-groupby
     '''
+    
+    x = results['drawdowns']
 
     if thresh_dd >0: thresh_dd = -thresh_dd
 
-    if thresh_dd < 0:
-        # this should return the max depth and length
-        mask = x <= thresh_dd
-        groupnum = mask.diff().fillna(method='bfill').cumsum()
+    # this should return the max depth and length
+    mask = x <= thresh_dd
+    groupnum = mask.diff().fillna(method='bfill').cumsum()
         
-#        if np.count_nonzero(x[groupnum==0]<=thresh_dd) == 0:
-#            x = x[groupnum>0]            
-#            groupnum = groupnum[groupnum>0]
-#            
-#        
-#        max_num = max(groupnum)
-#        if np.count_nonzero(x[groupnum==max_num]<=thresh_dd) == 0:
-#            x = x[groupnum<max_num]
-#            groupnum = groupnum[groupnum<max_num]
-            
-        print("\n DRAWDOWNS ANALYSIS \n")
-#        print("Nb of periods where DD <= " +str(thresh_dd) +"% : " +str(max(groupnum)) )
+    print("\n DRAWDOWNS ANALYSIS \n")
+    print(" DD period below the " +str(thresh_dd) +"% watermark" )
+    
+    if max(groupnum) == 0:
+        print("No occurence of DD <= " +str(thresh_dd) +"%")
+        return None
         
-        print("DD : Length   Depth")        
-        for key,grp in x.groupby(groupnum):
-#            print ("tet = " +str(grp.min()) )
-#            print grp.date
-#            print key
-            if (max(grp) <= thresh_dd):
-                print("       " +str(len(grp)) +"     " +str(round(grp.min(),2)))
-            
-    return x.groupby(groupnum)
+    col = ['From', 'maxDD', 'To', 'mDD', 'Length', 'To mDD', 'Recovery']
+    df = pd.DataFrame(columns=col)
+    
+    for key,grp in x.groupby(groupnum):
+        if (max(grp) <= thresh_dd):
+            length = len(grp)-1
+            df.loc[len(df)] = [ grp.index[0].strftime("%Y-%m-%d"), grp.idxmin().strftime("%Y-%m-%d") ,grp.index[length].strftime("%Y-%m-%d"), 
+                   grp.min(), (grp.index[length]-grp.index[0]).days, (grp.argmin()-grp.index[0]).days, (grp.index[length]-grp.argmin()).days]
+    
+    tot_days = (results.portfolio_value.index[len(results.portfolio_value)-1] - results.portfolio_value.index[0]).days
+    print(" %-time in High DD watermark: " +str(round(100*df['Length'].sum()/tot_days ,0) ) +"% \n")        
+    print df
+    return df
     
 #    if first_n > 0:
         

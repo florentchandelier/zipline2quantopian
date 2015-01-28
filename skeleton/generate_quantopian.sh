@@ -4,7 +4,7 @@ if [ $# -lt 4 ]
   then
     echo 'Missing arguments generate_quantopian [arg1=dir_strategy] [arg2=dir_generic_function] [arg3=dir_quantopian_import] [arg4=output file name] '
     echo 'Example: '
-    echo './generate_quantopian.sh "./strat1" "./generic_modules" "global_import" "q_strat1.py" '
+    echo './generate_quantopian.sh "./strat1" "./generic_modules" "./global_import" "q_strat1.py" '
     exit 1
 fi
 
