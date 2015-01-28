@@ -28,6 +28,7 @@ from zipline.version import *
 import pylab as pl
 import matplotlib.pyplot as plt
 from zp_plot import *
+from zp_perf_analysis import *
 
 from quantopian_import import *
 

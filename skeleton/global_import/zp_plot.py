@@ -12,7 +12,7 @@ def plot_portfolio (results, algo):
     
     ax2 = fig.add_subplot(312)
     (results.pnl).plot(ax=ax2, color='red')
-    ax2.set_ylabel('pnl ($)')
+    ax2.set_ylabel('PnL ($)')
     
     ax3 = fig.add_subplot(313)
     results.leverage.plot(ax=ax3)
