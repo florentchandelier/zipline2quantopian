@@ -24,7 +24,7 @@ do
         then
                 # remove the first line of each file (containing the import)
                 # >> append to current file
-                ast_scan.py $quantopian_file
+                generate_quantopian/ast_scan.py $quantopian_file
                 tail -n +2 $quantopian_file >> $output_file
                 # >> append to current file
                 printf " \n\n #### Next File ###\n\n"  >>  $output_file
@@ -40,7 +40,7 @@ do
         if !( echo $main_file | egrep -i "import|init") #grep -q "import"
         then
                 # remove the first line of each file (containing the import)
-                ast_scan.py $main_file
+                generate_quantopian/ast_scan.py $main_file
                 tail -n +2 $main_file >> $output_file
                 printf " \n\n #### Next File ###\n"  >>  $output_file
         else
@@ -52,7 +52,7 @@ for generic_function in $(find -H "$dir_generic_func" -type f -name '*.py')
 do
         if !( echo $generic_function | egrep -i "import|init")
         then
-                ast_scan.py $generic_function
+                generate_quantopian/ast_scan.py $generic_function
                 tail -n +2 $generic_function >> $output_file
                 printf " \n\n #### Next File ###\n\n"  >>  $output_file
         else
