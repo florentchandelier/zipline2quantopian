@@ -14,7 +14,7 @@ def get_cagr(context, data):
         initial_value = float(context.portf_allocation*context.portfolio.starting_cash)
         current_value = float(context.portfolio.portfolio_value - (context.portfolio.starting_cash-initial_value) )
         cagr = np.power(current_value/initial_value, 1/float(context.cagr_period/12) )-1
-        print( str(data[context.stocks[0]].datetime.year) +" CAGR = " +str(cagr))
+        print( str(data.items()[0][1].datetime.year) +" CAGR = " +str(cagr))
     return
     
 def check_cash_status(context):
