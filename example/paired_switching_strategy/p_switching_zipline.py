@@ -1,23 +1,14 @@
 
 from global_import.zipline_import import *
-from p_switching.psw_core import *
+from p_switching.psw_main import *
 
 
 if __name__ == '__main__':
  
     algo = TradingAlgorithm(initialize=initialize, handle_data=handle_data, capital_base = 10000)
     
-    #
-    # Fetch and Load financial Instruments
-    #
-    # This process is required if you declare more than one list of instruments in your algorithm.
-    # This is often the case if a strategy applies filters to a list of stocks, and
-    # default to cash (or any other instrument) should none of the stocks satisfy
-    # the criteria, or a cash-stop situation is reached.
-    #
-    new_data = [''.join(w) for w in algo.stocks]
-    #new_data += [algo.cashETF]
-    data = load_from_yahoo(stocks=new_data, indexes={},start=algo.startDate, end=algo.endDate)
+    instrument = [''.join(w) for w in algo.instrument.values()]
+    data = load_from_yahoo(stocks=instrument, indexes={},start=algo.startDate, end=algo.endDate)
     data = data.dropna()
     #
     # End Of Fetch and Load
@@ -26,5 +17,6 @@ if __name__ == '__main__':
     results = algo.run(data)
     plot_portfolio(results, algo)
   
-#    results.pnl ; results.returns
-    algo.perf_tracker.cumulative_risk_metrics
+    print("\n RISK METRICS \n")
+    print(algo.perf_tracker.cumulative_risk_metrics)
+    dd = from_trough_to_depth_trough(results, -7)
