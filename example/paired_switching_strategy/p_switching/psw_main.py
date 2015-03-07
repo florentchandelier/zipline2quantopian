@@ -4,6 +4,7 @@ def handle_data(context, data):
     # visually check for tapping in the margin
     check_cash_status(context) 
     record(leverage=context.account.leverage)
+    record(equity_line=context.portfolio.portfolio_value)
     return
 
 
