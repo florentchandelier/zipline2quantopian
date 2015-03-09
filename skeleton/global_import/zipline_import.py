@@ -27,6 +27,8 @@ from zipline.version import *
 
 import pylab as pl
 import matplotlib.pyplot as plt
+import matplotlib.dates as dates
+
 from zp_plot import *
 from zp_perf_analysis import *
 
