@@ -34,7 +34,7 @@ zipline2quantopian
 The objective with such structure would be to enhance the script creating the quantopian output by automatically parsing folder and generating proper filename for quantopian output. currenlty, I cannot make the import work in such structure !@#$
 
 ## USAGE
-[TESTED ON LINUX ONLY]
+[TESTED ON LINUX AND WINDOWS]
 - $ ./generate_quantopian [arg1=dir_strategy] [arg2=dir_generic_function] [arg3=dir_quantopian_import] [arg4=output file name]
 
 with the example code provided:
@@ -52,13 +52,19 @@ To create the example directory, I did create the strategy directory, then *$ ln
 ### Directories
 The **Skeleton directory** contains the minimal files structure necessary to realize the previous objectives. Although it can easily be expanded (more files and more directories), kindly note that the automatic aggregation of multiple files into a single quantopian-compatible ATS should respect the stated design requirements.
 
-The **Example directory** contains a functional ATS example, written in a manner compatible with the proposed skeleton. The ATS is thus compatible with Zipline, and can be automatically exported in a single file compatible with Quantopian. The example ATS is that of [*Paired-switching for tactical portfolio allocation*](http://papers.ssrn.com/sol3/papers.cfm?abstract_id=1917044). The resulting Quantopian file is p_switching_quantopian.py and was obtained by the following command-line:
+Except for the Quantopian only director, the **Example directory** contains functional ATS examples, written in a manner compatible with the proposed skeleton. The ATS is thus compatible with Zipline, and can be automatically exported in a single file compatible with Quantopian. The ATS are 
+- [*Paired-switching for tactical portfolio allocation*](http://papers.ssrn.com/sol3/papers.cfm?abstract_id=1917044). 
+- *multi-strategy with multiple instruments*, where strategies are most simplistic momentum strategies, for the sole benefit to demonstrate how to combine different ATS in a single strategy.
 
-$ ./generate_quantopian.sh "p_switching" "generic_modules" "global_import" "p_switching_quantopian.py"
+If we take the example of the Paired-switching ATS, the p_switching_quantopian.py quantopian script was obtained by the following command-line:
+
+$ ./generate_quantopian.sh -o p_switching_quantopian.py -s ./p_switching/ -i ./global_import/ -m ./generic_modules/ 
 
 The comparison between zipline and quantopian backtests is as follows:
 
 ![Output](https://github.com/florentchandelier/zipline2quantopian/blob/master/example/paired_switching_strategy/results_zipline_quantopian.jpg?raw=true)
+
+
 
 ### CODE/GIT CONVENTIONS
 (eventually, not yet decided: The overall git branching model shall follow the well-illustrated [successful git branching model](http://nvie.com/posts/a-successful-git-branching-model/).)
