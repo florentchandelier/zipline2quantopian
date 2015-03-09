@@ -63,7 +63,7 @@ To create the example directory, I did create the strategy directory, then *$ ln
 The **Skeleton directory** contains the minimal files structure necessary to realize the previous objectives. Although it can easily be expanded (more files and more directories), kindly note that the automatic aggregation of multiple files into a single quantopian-compatible ATS should respect the stated design requirements.
 
 Except for the Quantopian only director, the **Example directory** contains functional ATS examples, written in a manner compatible with the proposed skeleton. The ATS is thus compatible with Zipline, and can be automatically exported in a single file compatible with Quantopian. The ATS are 
-- [*Paired-switching for tactical portfolio allocation*](example/paired_switching_strategy), [ref](http://papers.ssrn.com/sol3/papers.cfm?abstract_id=1917044). 
+- [*Paired-switching for tactical portfolio allocation*](example/paired_switching_strategy), [**reference paper**](http://papers.ssrn.com/sol3/papers.cfm?abstract_id=1917044). 
 - [*multi-strategy with multiple instruments*](example/multi-strat_multi-instru/), where strategies are most simplistic momentum strategies, for the sole benefit to demonstrate how to combine different ATS in a single strategy.
 
 If we take the example of the Paired-switching ATS, the p_switching_quantopian.py quantopian script was obtained by the following command-line:
