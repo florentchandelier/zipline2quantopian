@@ -39,10 +39,15 @@ The objective with such structure would be to enhance the script creating the qu
 
 ## USAGE
 [TESTED ON LINUX AND WINDOWS]
-- $ ./generate_quantopian [arg1=dir_strategy] [arg2=dir_generic_function] [arg3=dir_quantopian_import] [arg4=output file name]
+Usage: ./generate_quantopian.sh [-h?] [-o OUTFILE] [-s CORE STRATEGY DIRECTORY] [-i IMPORT DIRECTORY] [-m list any additional directories ...]
 
-with the example code provided:
-- $ ./generate_quantopian.sh "./p_switching" "./generic_modules" "./global_import" "q_p_switching.py"
+- h/? display this help and exit
+- o OUTFILE quantopian files generated from zipline
+- s DIR main strategy classes
+- i DIR global imports containing zipline and quantopian imports. DEFAULT is ./global_import
+- m DIR Any additional directory containing relevant classes. DEFAULT is ./generic_modules
+
+EXAMPLE: ./generate_quantopian.sh -o strategy_quantopian.py -s ./strategy -i ./global_import -m ./generic_modules
 
 ## RECOMMENDATION
 I would suggest to symlink the skeleton structure of the git-pull repo during your strategy design, in order to maintain separately the skeleton elements (benefiting from updates and retaining the ability to commit improvements), and your private strategies' elements. You may use the following command:
