@@ -62,7 +62,7 @@ $ ./generate_quantopian.sh -o p_switching_quantopian.py -s ./p_switching/ -i ./g
 
 The comparison between zipline and quantopian backtests is as follows:
 
-![Output](zipline2quantopian/blob/master/example/paired_switching_strategy/Performance_zipline_quantopian.png)
+![Output](example/paired_switching_strategy/Performance_zipline_quantopian.png)
 
 
 
