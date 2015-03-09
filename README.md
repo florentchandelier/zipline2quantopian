@@ -39,13 +39,14 @@ The objective with such structure would be to enhance the script creating the qu
 
 ## USAGE
 [TESTED ON LINUX AND WINDOWS]
+
 Usage: ./generate_quantopian.sh [-h?] [-o OUTFILE] [-s CORE STRATEGY DIRECTORY] [-i IMPORT DIRECTORY] [-m list any additional directories ...]
 
-- h/? display this help and exit
-- o OUTFILE quantopian files generated from zipline
-- s DIR main strategy classes
-- i DIR global imports containing zipline and quantopian imports. DEFAULT is ./global_import
-- m DIR Any additional directory containing relevant classes. DEFAULT is ./generic_modules
+- -h/? display this help and exit
+- -o OUTFILE quantopian files generated from zipline
+- -s DIR main strategy classes
+- -i DIR global imports containing zipline and quantopian imports. DEFAULT is ./global_import
+- -m DIR Any additional directory containing relevant classes. DEFAULT is ./generic_modules
 
 EXAMPLE: ./generate_quantopian.sh -o strategy_quantopian.py -s ./strategy -i ./global_import -m ./generic_modules
 
