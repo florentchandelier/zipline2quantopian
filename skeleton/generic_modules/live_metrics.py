@@ -19,7 +19,7 @@ def get_cagr(context, data):
     context.cagr_period += 1
     if (context.cagr_period % 12 == 0):
         # portf_value: Sum value of all open positions and ending cash balance. 
-        initial_value = float(context.portf_allocation*context.portfolio.starting_cash)
+        initial_value = float(context.global_fund_managed*context.portfolio.starting_cash)
         current_value = float(context.portfolio.portfolio_value - (context.portfolio.starting_cash-initial_value) )
         
         cagr = np.power(current_value/initial_value, 1/float(context.cagr_period/12) )-1

@@ -31,6 +31,7 @@ import matplotlib.dates as dates
 
 from zp_plot import *
 from zp_perf_analysis import *
+import zp_performance_summary
 
 from quantopian_import import *
 

@@ -20,6 +20,7 @@ def from_trough_to_depth_trough(results, thresh_dd=0, first_n=0):
     
     if max(groupnum) == 0:
         print("No occurence of DD <= " +str(thresh_dd) +"%")
+        print(" Max DD is " +str(round(min(x),2)) +"%" )
         return None
         
     col = ['From', 'maxDD', 'To', 'mDD', 'Length', 'To mDD', 'Recovery']
@@ -33,7 +34,7 @@ def from_trough_to_depth_trough(results, thresh_dd=0, first_n=0):
     
     tot_days = (results.portfolio_value.index[len(results.portfolio_value)-1] - results.portfolio_value.index[0]).days
     print(" %-time in High DD watermark: " +str(round(100*df['Length'].sum()/tot_days ,0) ) +"% \n") 
-    print(" Max DD is " +str(min(df['mDD'])) +"%" )
+    print(" Max DD is " +str(round(min(df['mDD']),2)) +"%" )
       
     print df
     return df
