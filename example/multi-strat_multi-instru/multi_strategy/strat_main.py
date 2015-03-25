@@ -9,12 +9,12 @@ def handle_data(context, data):
 
 def initialize(context):
     
-    context.portf_allocation = 0.9
+    context.global_fund_managed = 0.9
     
     weight1 = 0.5
     weight2 = 1-weight1
-    start1_portf_allocation = weight1 *context.portf_allocation
-    start2_portf_allocation = weight2 *context.portf_allocation
+    start1_portf_allocation = weight1 *context.global_fund_managed
+    start2_portf_allocation = weight2 *context.global_fund_managed
     
     context.s1 = strat1(context, start1_portf_allocation)
     context.s2 = strat2(context, start2_portf_allocation)

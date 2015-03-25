@@ -66,8 +66,4 @@ if __name__ == '__main__':
         dd = from_trough_to_depth_trough(results, -7)
     
     elif results is not None:
-        print('Get recorded variable')
-#        fig = plt.figure()
-#        ax2 = fig.add_subplot(212)
-#        results[['equity_line']].plot(ax=ax2)
-#        pl.show()
+        print('Do something')

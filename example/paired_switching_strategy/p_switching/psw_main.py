@@ -20,7 +20,7 @@ def initialize(context):
     context.periodCount = 0
     
     context.cagr_period = 0
-    context.portf_allocation = 0.9
+    context.global_fund_managed = 0.9
     
     context.max_priceslippage = (float(0.5)/100)     
     

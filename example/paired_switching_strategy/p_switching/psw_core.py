@@ -81,7 +81,7 @@ class paired_switching():
             else:
                 dwn = self.context.instrument['treasury']
             
-            order_target_percent(up, 1 *self.context.portf_allocation)
+            order_target_percent(up, 1 *self.context.global_fund_managed)
             order_target_percent(dwn, 0)                  
         
         return
