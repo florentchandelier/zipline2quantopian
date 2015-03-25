@@ -6,6 +6,8 @@ import math
 import pandas as pd
 import numpy as np
 from scipy import stats as scistats
+import operator
+import itertools
 
 from datetime import datetime
 import pytz
@@ -15,12 +17,13 @@ from zipline.api import get_environment
  #### Next File ###
  
 
- #### File: ./p_switching/psw_main.py ###
+ #### File: p_switching/psw_main.py ###
 
 def handle_data(context, data):
     # visually check for tapping in the margin
     check_cash_status(context) 
     record(leverage=context.account.leverage)
+    record(equity_line=context.portfolio.portfolio_value)
     return
 
 
@@ -36,7 +39,7 @@ def initialize(context):
     context.periodCount = 0
     
     context.cagr_period = 0
-    context.portf_allocation = 0.9
+    context.global_fund_managed = 0.9
     
     context.max_priceslippage = (float(0.5)/100)     
     
@@ -83,12 +86,13 @@ def initialize(context):
         context.startDate = datetime(2004, 1, 1, 0, 0, 0, 0, pytz.utc)
         context.endDate = datetime(2015, 1, 1, 0, 0, 0, 0, pytz.utc)
     
-    return 
+    return
+ 
 
  #### Next File ###
  
 
- #### File: ./p_switching/psw_core.py ###
+ #### File: p_switching/psw_core.py ###
 
 '''
 OBJECTIVE
@@ -171,7 +175,7 @@ class paired_switching():
             else:
                 dwn = self.context.instrument['treasury']
             
-            order_target_percent(up, 1 *self.context.portf_allocation)
+            order_target_percent(up, 1 *self.context.global_fund_managed)
             order_target_percent(dwn, 0)                  
         
         return 
@@ -200,7 +204,7 @@ def get_cagr(context, data):
     context.cagr_period += 1
     if (context.cagr_period % 12 == 0):
         # portf_value: Sum value of all open positions and ending cash balance. 
-        initial_value = float(context.portf_allocation*context.portfolio.starting_cash)
+        initial_value = float(context.global_fund_managed*context.portfolio.starting_cash)
         current_value = float(context.portfolio.portfolio_value - (context.portfolio.starting_cash-initial_value) )
         
         cagr = np.power(current_value/initial_value, 1/float(context.cagr_period/12) )-1

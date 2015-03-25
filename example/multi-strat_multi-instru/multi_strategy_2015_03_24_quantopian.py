@@ -7,6 +7,7 @@ import pandas as pd
 import numpy as np
 from scipy import stats as scistats
 import operator
+import itertools
 
 from datetime import datetime
 import pytz
@@ -16,7 +17,7 @@ from zipline.api import get_environment
  #### Next File ###
  
 
- #### File: ./multi_strategy/strat2/strat2_core.py ###
+ #### File: multi_strategy/strat2/strat2_core.py ###
 
 class strat2():
     
@@ -65,7 +66,7 @@ class strat2():
  #### Next File ###
  
 
- #### File: ./multi_strategy/strat1/strat1_core.py ###
+ #### File: multi_strategy/strat1/strat1_core.py ###
 
 class strat1():
     
@@ -114,7 +115,7 @@ class strat1():
  #### Next File ###
  
 
- #### File: ./multi_strategy/strat_main.py ###
+ #### File: multi_strategy/strat_main.py ###
 
 def handle_data(context, data):
     # visually check for tapping in the margin
@@ -125,12 +126,12 @@ def handle_data(context, data):
 
 def initialize(context):
     
-    context.portf_allocation = 0.9
+    context.global_fund_managed = 0.9
     
     weight1 = 0.5
     weight2 = 1-weight1
-    start1_portf_allocation = weight1 *context.portf_allocation
-    start2_portf_allocation = weight2 *context.portf_allocation
+    start1_portf_allocation = weight1 *context.global_fund_managed
+    start2_portf_allocation = weight2 *context.global_fund_managed
     
     context.s1 = strat1(context, start1_portf_allocation)
     context.s2 = strat2(context, start2_portf_allocation)
@@ -180,7 +181,8 @@ def rebalance(context, data):
     return
     
 def combine_dicts(a, b, op=operator.add):
-    return dict(a.items() + b.items() + [(k, op(a[k], b[k])) for k in set(b) & set(a)]) 
+    return dict(a.items() + b.items() + [(k, op(a[k], b[k])) for k in set(b) & set(a)])
+ 
 
  #### Next File ###
  
@@ -206,7 +208,7 @@ def get_cagr(context, data):
     context.cagr_period += 1
     if (context.cagr_period % 12 == 0):
         # portf_value: Sum value of all open positions and ending cash balance. 
-        initial_value = float(context.portf_allocation*context.portfolio.starting_cash)
+        initial_value = float(context.global_fund_managed*context.portfolio.starting_cash)
         current_value = float(context.portfolio.portfolio_value - (context.portfolio.starting_cash-initial_value) )
         
         cagr = np.power(current_value/initial_value, 1/float(context.cagr_period/12) )-1

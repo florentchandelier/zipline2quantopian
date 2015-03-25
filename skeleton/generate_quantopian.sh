@@ -20,7 +20,7 @@ EXAMPLE: ./generate_quantopian.sh -o strategy_quantopian.py -s ./strategy -i ./g
 EOF
 }
 
-if [ $# -lt 3 ]
+if [ $# -lt 2 ]
 then
 echo -e '\nNot enough parameters, see USAGE. \n'
 show_help
@@ -77,7 +77,7 @@ if [ -z "$output_file" ]; then
     echo -e "\n!!! EMPTY Argument -o. Using DEFAULT name: strat_dir|date.py"
     DATE=`date +%Y_%m_%d`
     Strategy=${dir_strategy//[\/.]/}
-    output_file="${Strategy}_${DATE}.py"
+    output_file="${Strategy}_${DATE}_quantopian.py"
 fi
 
 # > concatenate in a new file
