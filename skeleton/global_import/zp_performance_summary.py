@@ -12,6 +12,13 @@ class performance():
     def get_ds(self):
         return self.ds
         
+    def store_ds (self, path, filename):
+        filepath = path+filename+'_'+str(datetime.today())+'.h5'
+        store = pd.HDFStore(filepath, 'w')
+        store['equity'] = self.df
+        store.close()
+        return filepath
+        
     def make_df(self):
         if 'portfolio_value' not in self.df:
             self.df = pd.DataFrame(self.ds, columns=['portfolio_value'])
