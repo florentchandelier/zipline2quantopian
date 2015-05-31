@@ -37,3 +37,4 @@ from quantopian_import import *
 
 from generic_modules.live_metrics import *
 from generic_modules.stock_metrics import *
+from generic_modules.custom_data import *
