@@ -122,7 +122,7 @@ class performance():
         
         tot_days = (self.df['portfolio_value'].index[len(self.df['portfolio_value'])-1] - self.df['portfolio_value'].index[0]).days
         print(" %-time in High DD watermark: " +str(round(100*dd['Length'].sum()/tot_days ,0) ) +"% \n") 
-        print(" Max DD is " +str(round(min(dd['mDD-%']),2)) +"%" )
+        print(" Max DD is " +str(round(min(dd['mDD-%']),2)) +"%\n" )
         print dd
         
         return
@@ -138,6 +138,8 @@ class performance():
         nb_year = (self.df['portfolio_value'].idxmax().year - self.df['portfolio_value'].idxmin().year) +1
         gain = self.df['portfolio_value'][-1] - self.df['portfolio_value'][0]
         avg_dd = np.mean(dd.sort(['mDD-$'], ascending=False)[0:nb_year]['mDD-$'])
+        
+        print("\n GAIN TO PAIN RATIO\n ------------------\n >1.5:excellent|=1:good|<0:bad")
         
         return gain/ (avg_dd*nb_year)
         
