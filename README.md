@@ -50,6 +50,7 @@ Usage: ./generate_quantopian.sh [-h?] [-o OUTFILE] [-s CORE STRATEGY DIRECTORY] 
 - -m DIR Any additional directory containing relevant classes. DEFAULT is ./generic_modules
 
 EXAMPLE-1: ./generate_quantopian.sh -o strategy_quantopian.py -s ./strategy -i ./global_import -m ./generic_modules
+
 EXAMPLE-2: ./generate_quantopian.sh -c strategy_conf.z2q, where *.z2q is a JSON file containing the following:
 
     {
