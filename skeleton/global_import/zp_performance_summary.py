@@ -11,9 +11,12 @@ class performance():
         
     def get_ds(self):
         return self.ds
-        
-    def store_ds (self, path, filename):
-        filepath = path+filename+'_'+str(datetime.today())+'.h5'
+            
+    def store_ds_to_hdf (self, filename, directory="/equity_curves/", path=os.getcwd()):
+        if not (os.path.isdir(path+directory)):
+            print(" \n!!!!!\n --> Directory " +str(path+directory) +" does not exists. Attempting creation")
+            os.makedirs(path+directory)
+        filepath = path+directory+filename+'_'+str(datetime.today())+'.h5'
         store = pd.HDFStore(filepath, 'w')
         store['equity'] = self.df
         store.close()
