@@ -55,11 +55,11 @@ EXAMPLE-2: ./generate_quantopian.sh -c strategy_conf.z2q, where *.z2q is a JSON 
 
     {
     "z2q_conf":{
-		"output_file": "quantopian_strategy.py", 
-		"dir_strategy": "main_strategy/", 
+		"output_file": "strategy_quantopian.py", 
+		"dir_strategy": "strategy/", 
 		"dir_quantopian_import": "global_import/", 
-		"dir_generic_func": ["generic_modules/", "risk_analysis/"],
-		"exlude_modules":["custom_data.py", "analyze_performance.py"]
+		"dir_generic_func": ["generic_modules/", "...add more.../"],
+		"exlude_modules":["custom_data.py", "...add more....py"]
 	    }
     }
 
