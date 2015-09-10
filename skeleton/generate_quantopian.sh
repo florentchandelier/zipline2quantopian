@@ -8,18 +8,29 @@ OPTIND=1         # Reset in case getopts has been used previously in the shell.
 # Usage info
 show_help() {
 cat << EOF
-Usage: ${0##*/} [-h?] [-o OUTFILE] [-s CORE STRATEGY DIRECTORY] [-i IMPORT DIRECTORY] [-m list any additional directories ...]
+Usage: ${0##*/} [-h?] [-c CONF FILE] [-o OUTFILE] [-s CORE STRATEGY DIRECTORY] [-i IMPORT DIRECTORY] [-m list any additional directories ...] [-x EXCLUDE FILTER]
 
     -h/?        display this help and exit
+    -c FILE  configuration file: can be used to input all other parameters; advantage is to use the "exclude filter"
     -o OUTFILE	quantopian files generated from zipline. DEFAULT is {strat_dir provided by -s}_{Date}.py
     -s DIR	main strategy classes
     -i DIR	global imports containing zipline and quantopian imports. DEFAULT is ./global_import
     -m DIR	Any additional directory containing relevant classes. DEFAULT is ./generic_modules
+    -x FILE list all modules that should not be part of the final OUTFILE
 
 EXAMPLE: ./generate_quantopian.sh -o strategy_quantopian.py -s ./strategy -i ./global_import -m ./generic_modules
 EOF
 }
 
+# check for required command and libraries
+command_req=`command -v jq`
+if [ -z "$command_req" ]; then
+	echo "command jq is required but cannot be found on current system.  Aborting."
+	echo "You can install jq from Ubuntu Software center or directly from https://stedolan.github.io/jq"
+	exit 1
+fi
+
+# check for minimum input requirements
 if [ $# -lt 2 ]
 then
 echo -e '\nNot enough parameters, see USAGE. \n'
@@ -28,6 +39,7 @@ exit 1
 fi
 
 # Initialize our own variables:
+conf_file=""
 output_file=""
 dir_strategy=""
 dir_quantopian_import=""
@@ -36,7 +48,7 @@ dir_generic_func=""
 verbose=0
 
 OPTIND=1 # Reset is necessary if getopts was used previously in the script.  It is a good idea to make this local in a function.
-while getopts "ho:s:i:m:" opt; do
+while getopts "ho:c:s:i:m:" opt; do
     case "$opt" in
         h)
             show_help
@@ -47,6 +59,9 @@ while getopts "ho:s:i:m:" opt; do
         o)
             output_file=$OPTARG
             ;;
+        c)
+			conf_file=$OPTARG
+			;;
         s)
             dir_strategy=$OPTARG
             ;;
@@ -65,21 +80,31 @@ done
 shift "$((OPTIND-1))" # Shift off the options and optional --.
 
 # the -z operator checks whether the string is null. ie
-if [ -z "$dir_quantopian_import" ]; then
-    echo -e "\n!!! EMPTY Argument -i. Using DEFAULT path: ./global_import"
-    dir_quantopian_import="./global_import/"
-fi
-if [ -z "$dir_generic_func" ]; then
-    echo -e "\n!!! EMPTY Argument -m. Using DEFAULT path: ./generic_modules"
-    dir_generic_func="./generic_modules/"
-fi
-if [ -z "$output_file" ]; then
-    echo -e "\n!!! EMPTY Argument -o. Using DEFAULT name: strat_dir|date.py"
-    DATE=`date +%Y_%m_%d`
-    Strategy=${dir_strategy//[\/.]/}
-    output_file="${Strategy}_${DATE}_quantopian.py"
-fi
+if ! [ -z "$conf_file" ]; then
+    echo -e "\n!!! Using configuration file\n\n"
+    
+    output_file=`jq <"$conf_file" -r '.z2q_conf.output_file'`
+    dir_strategy=`jq <"$conf_file" -r '.z2q_conf.dir_strategy'`
+    dir_quantopian_import=`jq <"$conf_file" -r '.z2q_conf.dir_quantopian_import'`
+    #dir_generic_func=`jq <"$conf_file" -r '.z2q_conf.dir_generic_func'`
+    exlude_modules=`jq <"$conf_file" -r '.z2q_conf.exlude_modules'`
 
+else
+	if [ -z "$dir_quantopian_import" ]; then
+		echo -e "\n!!! EMPTY Argument -i. Using DEFAULT path: ./global_import"
+		dir_quantopian_import="./global_import/"
+	fi
+	if [ -z "$dir_generic_func" ]; then
+		echo -e "\n!!! EMPTY Argument -m. Using DEFAULT path: ./generic_modules"
+		dir_generic_func="./generic_modules/"
+	fi
+	if [ -z "$output_file" ]; then
+		echo -e "\n!!! EMPTY Argument -o. Using DEFAULT name: strat_dir|date.py"
+		DATE=`date +%Y_%m_%d`
+		Strategy=${dir_strategy//[\/.]/}
+		output_file="${Strategy}_${DATE}_quantopian.py"
+	fi
+fi
 # > concatenate in a new file
 echo -e "## Exported with zipline2quantopian (c) Florent chandelier - https://github.com/florentchandelier/zipline2quantopian ##" > $output_file
 
@@ -96,7 +121,7 @@ do
 		# >> append to current file
 		echo -e " \n\n #### Next File ###"  >>  $output_file
 	else
-		printf "\n discarding $quantopian_file"
+		printf "\t discarding $quantopian_file\n\n"
 	fi
 done
 
@@ -140,32 +165,35 @@ do
 		fi
 		
 	else
-		printf "\n discarding $main_file"
+		printf "\t discarding $main_file\n\n"
 	fi
 done
 
-for generic_function in $(find -H "$dir_generic_func" -type f -name '*.py')
-do
-	if !( echo -e $generic_function | egrep -i "import|init") 
-	then 
-		echo -e " \n\n #### File: $generic_function ###"  >>  $output_file
-		tail -n +2 $generic_function >> $output_file
-		echo -e " \n\n #### Next File ###"  >>  $output_file
-	else
-		printf "\n discarding $generic_function"
+while IFS= read -r; do
+  string=$REPLY
+  striped=${string//[\]\[,\"\' ]/}
+  echo $striped
+  if ! [ -z "$striped" ]; then
+	  for generic_function in $(find -H "$striped" -type f -name '*.py')
+		do
+			if !( echo -e $generic_function | egrep -i "import|init")
+			then
+				# remove file path to keep only filename = module_name (assumed)
+				module="`basename $generic_function`"
+				# check if a module should be excluded
+				if [[ " ${exlude_modules[@]} " =~ "$module" ]]; then
+					printf "\t XX excluding $generic_function\n\n"
+				else
+					# if not to be excluded, then include in Q-version
+					printf "adding $generic_function\n"
+					echo -e " \n\n #### File: $generic_function ###"  >>  $output_file
+					# find all lines that start with    from    and delete them, leaving everything else.
+					sed '/^from/ d' $generic_function >> $output_file
+					echo -e " \n\n #### Next File ###"  >>  $output_file
+				fi
+			else
+				printf "\t discarding $generic_function\n\n"
+			fi
+		done
 	fi
-done
-	
-for dir in "$@"; do
-	for generic_function in $(find -H "$dir" -type f -name '*.py')
-	do
-		if !( echo -e $generic_function | egrep -i "import|init") 
-		then
-			echo -e " \n\n #### File: $generic_function ###"  >>  $output_file
-			tail -n +2 $generic_function >> $output_file
-			echo -e " \n\n #### Next File ###"  >>  $output_file
-		else
-			printf "\n discarding $generic_function"
-		fi
-	done
-done
+done < <(jq <"$conf_file" -r '.z2q_conf.dir_generic_func')
