@@ -8,4 +8,4 @@ import itertools
 
 from datetime import datetime
 import pytz
-from zipline.api import get_environment
+from zipline.api import get_environment  
