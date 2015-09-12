@@ -17,7 +17,7 @@ A second objective was to provide some educative ATS strategies written in Zipli
 
 
 ## PROPOSED SKELETON STRUCTURE
-A rational for the proposed skeleton structure is detailed in [skeleton_structure.txt](skeleton/skeleton_structure.txt)
+A rational for the proposed skeleton structure is detailed in [skeleton_structure.txt](skeleton/skeleton_structure.md)
 
 [note] a cleaner way would be to create a package structure such as:
 
