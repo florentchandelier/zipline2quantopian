@@ -25,7 +25,7 @@ The specific objective of having a directory *generic_module* is to maintain a s
 
 ./ats_name.py -> spyder-compatible script calling and importing the module specific to the ATS (located in the ats_name directory), and eventually adapting the financial instrument fetch & load procedure (refer to the portion of the code with comments specific to fetch/load instruments and the example). 
 
-./ats_name
+./ats_name directory -> requires at least a main.py file and a context.py file. The **context.py** file is used by the zip2quant script to automatically generate the *initialize* function for quantopian (from the zipline one).
 
 # RECOMMENDATION
 I would suggest to symlink the skeleton structure of the git-pull repo during your strategy design, in order to maintain separately the skeleton elements (benefiting from updates and retaining the ability to commit improvements), and your private strategies' elements. You may use the following command:
