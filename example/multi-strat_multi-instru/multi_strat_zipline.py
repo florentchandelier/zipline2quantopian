@@ -4,7 +4,7 @@ from multi_strategy.strat_main import *
 	
 if __name__ == '__main__':
     
-    fast_backtest = False
+    fast_backtest = True
     algo = TradingAlgorithm(initialize=initialize, handle_data=handle_data, capital_base = 10000, fast_backtest=fast_backtest)
     
     instrument = [''.join(w) for w in algo.instrument]
@@ -26,3 +26,9 @@ if __name__ == '__main__':
         print("\n RISK METRICS \n")
         print(algo.perf_tracker.cumulative_risk_metrics)
         dd = from_trough_to_depth_trough(results, -7)
+    else:
+        
+        algo.performance_analysis.render_get_gain_to_pain()        
+        algo.performance_analysis.render_from_trough_to_depth_trough(-5)
+        algo.performance_analysis.get_ds().plot()
+        

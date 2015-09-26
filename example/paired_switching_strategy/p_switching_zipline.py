@@ -56,7 +56,10 @@ if __name__ == '__main__':
     else:
         start_time = time.time()
         results = algo.run(data)
-        print(" --- algo.run completed in %s seconds ---" % (time.time() - start_time))    
+        print(" --- algo.run completed in %s seconds ---" % (time.time() - start_time)) 
+        algo.performance_analysis.render_get_gain_to_pain()        
+        algo.performance_analysis.render_from_trough_to_depth_trough(-5)
+        algo.performance_analysis.get_ds().plot()
 
     if not fast_backtest and results is not None:    
         plot_portfolio(results, algo)
