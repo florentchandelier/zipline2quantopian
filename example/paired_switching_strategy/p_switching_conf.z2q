@@ -2,8 +2,9 @@
 	"z2q_conf":{
 	
 		"output_file": "Q-p_switching.py", 
-		"dir_strategy": "p_switching/", 
-		"dir_quantopian_import": "global_import/", 
+		"dir_strategy": "p_switching/",
+		"dir_quantopian_import": "global_import/",
+		"dir_architecture": "TradingSystemArchitecture", 
 		"dir_generic_func": ["generic_modules/"],
 		"exlude_modules":["custom_data.py"]
 	}

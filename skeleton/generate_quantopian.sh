@@ -15,6 +15,7 @@ Usage: ${0##*/} [-h?] [-c CONF FILE] [-o OUTFILE] [-s CORE STRATEGY DIRECTORY] [
     -o OUTFILE	quantopian files generated from zipline. DEFAULT is {strat_dir provided by -s}_{Date}.py
     -s DIR	main strategy classes
     -i DIR	global imports containing zipline and quantopian imports. DEFAULT is ./global_import
+    -a DIR	contains the modules defining the trading architecture
     -m DIR	Any additional directory containing relevant classes. DEFAULT is ./generic_modules
     -x FILE list all modules that should not be part of the final OUTFILE
 
@@ -43,6 +44,7 @@ conf_file=""
 output_file=""
 dir_strategy=""
 dir_quantopian_import=""
+dir_architecture=""
 dir_generic_func=""
 
 verbose=0
@@ -68,6 +70,9 @@ while getopts "ho:c:s:i:m:" opt; do
         i)
             dir_quantopian_import=$OPTARG
             ;;
+		a)
+			dir_architecture==$OPTARG
+			;;
         m)
             dir_generic_func=$OPTARG
             ;;
@@ -86,6 +91,7 @@ if ! [ -z "$conf_file" ]; then
     output_file=`jq <"$conf_file" -r '.z2q_conf.output_file'`
     dir_strategy=`jq <"$conf_file" -r '.z2q_conf.dir_strategy'`
     dir_quantopian_import=`jq <"$conf_file" -r '.z2q_conf.dir_quantopian_import'`
+    dir_architecture=`jq <"$conf_file" -r '.z2q_conf.dir_architecture'` 
     #dir_generic_func=`jq <"$conf_file" -r '.z2q_conf.dir_generic_func'`
     exlude_modules=`jq <"$conf_file" -r '.z2q_conf.exlude_modules'`
 
@@ -93,6 +99,10 @@ else
 	if [ -z "$dir_quantopian_import" ]; then
 		echo -e "\n!!! EMPTY Argument -i. Using DEFAULT path: ./global_import"
 		dir_quantopian_import="./global_import/"
+	fi
+	if [ -z "$dir_architecture" ]; then
+		echo -e "\n!!! EMPTY Argument -a. Using DEFAULT path: ./TradingSystemArchitecture"
+		dir_architecture="./TradingSystemArchitecture/"
 	fi
 	if [ -z "$dir_generic_func" ]; then
 		echo -e "\n!!! EMPTY Argument -m. Using DEFAULT path: ./generic_modules"
@@ -125,6 +135,29 @@ do
 	fi
 done
 
+# include all classes involved in the Trading System Architecture
+for generic_function in $(find -H "$dir_architecture" -type f -name '*.py')
+    do
+    if !( echo -e $generic_function | egrep -i "import|init")
+    then
+        # remove file path to keep only filename = module_name (assumed)
+        module="`basename $generic_function`"
+        # check if a module should be excluded
+        if [[ " ${exlude_modules[@]} " =~ "$module" ]]; then
+            printf "\t XX excluding $generic_function\n\n"
+        else
+            # if not to be excluded, then include in Q-version
+            printf "adding $generic_function\n"
+            echo -e " \n\n #### File: $generic_function ###"  >>  $output_file
+            # find all lines that start with    from    and delete them, leaving everything else.
+            sed '/^from/ d' $generic_function >> $output_file
+            echo -e " \n\n #### Next File ###"  >>  $output_file
+        fi
+    else
+    printf "\t discarding $generic_function\n\n"
+    fi
+done
+
 # list all files in the strategy directory
 for main_file in $(find -H "$dir_strategy" -type f -name '*.py')
 do
@@ -135,7 +168,10 @@ do
 		then
 			echo -e " \n\n #### File: $main_file ###"  >>  $output_file
 			# remove the first line of each file (containing the import)
-			tail -n +2 $main_file >> $output_file
+            quantopian
+			content=$(tail -n +2 $main_file)
+            content="${content//context.schedule/schedule}"
+            echo -e "$content" >> $output_file
 			echo -e " \n\n #### Next File ###"  >>  $output_file
 			
 		elif ( echo -e $main_file | egrep -i "main")
