@@ -1,13 +1,11 @@
-
-from global_import.zipline_import import *
-from multi_strategy.strat_main import *
+from multi_strategy.main import *
 	
 if __name__ == '__main__':
     
     fast_backtest = True
     algo = TradingAlgorithm(initialize=initialize, handle_data=handle_data, capital_base = 10000, fast_backtest=fast_backtest)
     
-    instrument = [''.join(w) for w in algo.instrument]
+    instrument = [''.join(w) for w in algo.instrument.values()]
 
     data = load_from_yahoo(stocks=instrument, indexes={},start=algo.startDate, end=algo.endDate)
     data = data.dropna()

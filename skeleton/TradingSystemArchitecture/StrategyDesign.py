@@ -14,6 +14,7 @@ class StrategyDesign(object):
         self.allocation = 0
         self.order_management_send_orders = None
         self.schedule_func_list = []
+        self.instruments = dict()
         return
         
 #        def compute_target(self, context, data):
@@ -53,3 +54,6 @@ class StrategyDesign(object):
         
     def get_schedule_function(self):
         return self.schedule_func_list
+        
+    def get_instruments(self):
+        return self.instruments

@@ -3,7 +3,8 @@
 	
 		"output_file": "Q-multistrat.py", 
 		"dir_strategy": "multi_strategy/", 
-		"dir_quantopian_import": "global_import/", 
+		"dir_quantopian_import": "global_import/",
+		"dir_architecture": "TradingSystemArchitecture",  
 		"dir_generic_func": ["generic_modules/"],
 		"exlude_modules":["custom_data.py"]
 	}

@@ -1,1 +1,0 @@
-../../skeleton/skeleton_structure.txt

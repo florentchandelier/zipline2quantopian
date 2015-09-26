@@ -71,9 +71,6 @@ class pswitching(StrategyDesign):
     def get_configuration(self):
         return self.config
         
-    def get_instruments(self):
-        return self.instruments
-        
     def order_logic(self, context, data):
         
         self.periodCount += 1
