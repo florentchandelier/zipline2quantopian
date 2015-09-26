@@ -2,6 +2,23 @@
 from global_import.zipline_import import *
 from p_switching.main import *
 
+'''
+SPY
+TLT
+[2004-12] > CAGR = -0.0217077777778
+[2005-12] > CAGR = 0.0302265123101
+[2006-12] > CAGR = 0.0511810008782
+[2007-12] > CAGR = 0.0611904241916
+[2008-12] > CAGR = 0.0636832451999
+[2009-12] > CAGR = 0.0857415189302
+[2010-12] > CAGR = 0.0947395494563
+[2011-12] > CAGR = 0.128460466573
+[2012-12] > CAGR = 0.11529851544
+[2013-12] > CAGR = 0.126279075622
+[2014-12] > CAGR = 0.127991632433
+ --- algo.run completed in 6.11192798615 seconds ---
+'''
+
 import cProfile
 import pstats
 import StringIO
