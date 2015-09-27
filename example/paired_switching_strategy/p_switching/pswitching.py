@@ -49,7 +49,6 @@ class pswitching(StrategyDesign):
         name = 'pair switching strategy'
         StrategyDesign.__init__(self, name)
 
-        self.context = context
         self.nbSwitch = 0
         self.lookback = 3*21 # 4 months period, 21 trading days per month
         self.Periodicity = 1 # every x period ; 1 means every period

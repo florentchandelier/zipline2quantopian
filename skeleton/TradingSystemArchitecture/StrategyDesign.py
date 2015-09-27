@@ -24,7 +24,7 @@ class StrategyDesign(object):
         self.order_management_send_orders = value
         return
         
-    def send_orders(self, data, target_percent_dict):
+    def send_orders(self, data, target_percent_dict, precision=3):
         if self.allocation == 0:
             return
             
@@ -32,7 +32,7 @@ class StrategyDesign(object):
         to do: must be a more pythonic way
         '''
         for i in target_percent_dict:
-            target_percent_dict[i] = target_percent_dict[i] * self.allocation
+            target_percent_dict[i] = round(target_percent_dict[i] * self.allocation, precision)
             
         self.order_management_send_orders(data, target_percent_dict)
         return
