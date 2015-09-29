@@ -17,7 +17,7 @@ class OrderManager():
                                          op=operator.add)
         return
     
-    def add_orders(self, data, input_dict):
+    def add_percent_orders(self, data, input_dict):
         # get current positions percentage of portfolio
         # to determine is the input_dict percentage of a position
         # corresponds to selling or buying said position

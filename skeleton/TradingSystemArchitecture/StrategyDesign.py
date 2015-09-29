@@ -20,11 +20,11 @@ class StrategyDesign(object):
 #        def compute_target(self, context, data):
 #            raise NotImplementedError()
         
-    def set_send_orders(self, value):
-        self.order_management_send_orders = value
+    def set_send_percent_orders(self, value):
+        self.order_management_send_percent_orders = value
         return
         
-    def send_orders(self, data, target_percent_dict, precision=3):
+    def send_percent_orders(self, data, target_percent_dict, precision=3):
         if self.allocation == 0:
             return
             
@@ -34,7 +34,7 @@ class StrategyDesign(object):
         for i in target_percent_dict:
             target_percent_dict[i] = round(target_percent_dict[i] * self.allocation, precision)
             
-        self.order_management_send_orders(data, target_percent_dict)
+        self.order_management_send_percent_orders(data, target_percent_dict)
         return
         
     def set_allocation(self, value):
