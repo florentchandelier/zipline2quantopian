@@ -17,6 +17,14 @@ class OrderManager():
                                          op=operator.add)
         return
     
+    def send_order_through(self, instrument, nb_shares=0, style=MarketOrder()):
+        '''
+        MarketOrder()
+        LimitOrder()
+        '''
+        order(instrument, nb_shares, style=style)
+        return
+        
     def add_percent_orders(self, data, input_dict):
         # get current positions percentage of portfolio
         # to determine is the input_dict percentage of a position

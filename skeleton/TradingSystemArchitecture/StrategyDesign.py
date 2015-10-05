@@ -13,6 +13,7 @@ class StrategyDesign(object):
         self.name = name
         self.allocation = 0
         self.order_management_send_orders = None
+        self.order_management_send_order_through = None
         self.schedule_func_list = []
         self.instruments = dict()
         return
@@ -35,6 +36,14 @@ class StrategyDesign(object):
             target_percent_dict[i] = round(target_percent_dict[i] * self.allocation, precision)
             
         self.order_management_send_percent_orders(data, target_percent_dict)
+        return
+        
+    def set_send_order_through(self, value):
+        self.order_management_send_order_through = value
+        return
+        
+    def send_order_through(self, instrument, nb_shares=0, style=MarketOrder()):
+        self.order_management_send_order_through(instrument, nb_shares, style=MarketOrder())
         return
         
     def set_allocation(self, value):

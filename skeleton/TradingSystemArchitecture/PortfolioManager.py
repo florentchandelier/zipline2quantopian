@@ -25,6 +25,7 @@ class PortfolioManager(object):
         
         self.list_strategies.append(value)
         value.set_send_percent_orders(self.order_management.add_percent_orders)
+        value.set_send_order_through(self.order_management.send_order_through)
         self.set_instruments(value.get_instruments())
         self.order_management.add_instruments(value.get_instruments())
         
