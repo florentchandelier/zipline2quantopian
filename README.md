@@ -92,7 +92,7 @@ The comparison between zipline and quantopian backtests is as follows:
 
 
 ### CODE/GIT CONVENTIONS
-(eventually, not yet decided: The overall git branching model shall follow the well-illustrated [successful git branching model](http://nvie.com/posts/a-successful-git-branching-model/).)
+Workflow: Using that of [GitHub Flow](http://scottchacon.com/2011/08/31/github-flow.html)
 
 Branch naming conventions shall follow that of [GroupName/Info](http://stackoverflow.com/questions/273695/git-branch-naming-best-practices):
 
