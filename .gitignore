@@ -54,7 +54,8 @@ docs/_build/
 # PyBuilder
 target/
 
-paired_switching_strategy/TradingSystemArchitecture
-multi-strat_multi-instru/skeleton_structure.md
-multi-strat_multi-instru/TradingSystemArchitecture
+example/paired_switching_strategy/TradingSystemArchitecture
+example/paired_switching_strategy/skeleton_structure.md
+example/multi-strat_multi-instru/skeleton_structure.md
+example/multi-strat_multi-instru/TradingSystemArchitecture
 
