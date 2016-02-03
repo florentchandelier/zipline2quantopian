@@ -100,6 +100,6 @@ class pswitching(StrategyDesign):
         target_percent_dict[up] = 1
         target_percent_dict[dwn] = 0
         
-        self.send_orders(data, target_percent_dict)                   
+        self.send_percent_orders(data, target_percent_dict)                   
         
         return      

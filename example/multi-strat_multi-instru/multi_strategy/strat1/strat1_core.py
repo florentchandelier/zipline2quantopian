@@ -42,5 +42,5 @@ class strat1(StrategyDesign):
         elif mom == 0:
             target_percent_dict[inst] = 0
         
-        self.send_orders(data, target_percent_dict)
+        self.send_percent_orders(data, target_percent_dict)
         return

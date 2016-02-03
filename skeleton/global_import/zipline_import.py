@@ -23,7 +23,7 @@ from zipline.protocol import *
 from zipline.sources import *  
 from zipline.transforms import *  
 from zipline.utils import *  
-from zipline.version import *
+#from zipline.version import *
 
 import pylab as pl
 import matplotlib.pyplot as plt
