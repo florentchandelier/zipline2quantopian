@@ -142,10 +142,10 @@ class performance():
         gain = self.df['portfolio_value'][-1] - self.df['portfolio_value'][0]
         avg_dd = np.mean(dd.sort(['mDD-$'], ascending=False)[0:nb_year]['mDD-$'])
         
-        print("\n GAIN TO PAIN RATIO\n ------------------\n >1.5:excellent|=1:good|<0:bad")
+        print("\n GAIN TO PAIN RATIO\n ------------------\n >1.5:excellent | =1:good | <0:bad")
         
         return gain/ (avg_dd*nb_year)
         
     def render_get_gain_to_pain (self):
         g2p = self.get_gain_to_pain()
-        print("The gain-to-pain ration is " +str(g2p))
+        print("The gain-to-pain ratio is " +str(g2p))
