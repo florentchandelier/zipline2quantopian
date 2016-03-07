@@ -1,14 +1,25 @@
-from necessary_import import *;
+from necessary_import import *; from StrategyPortfolio import *;
+
+'''
+
+to dos:
+    1. Strategy shall have a Debug class that may output strategies parameters 
+    and states in a pandas dataframe for analysis (in notebook for example)
+
+StrategyDesign is responsible for the basic strategy interactions. 
+0. It receives fund allocation from the PortfolioManager
+
+1. It registers with OrderManagement through the PortfolioManager, specifically
+ to the method for executing orders.
+
+2. It receives a strategy order and apply the allocation of funds set by the
+ PortfolioManager.
+
+3. It holds all the required schedule_functions to add in Initialize()
+'''
 
 class StrategyDesign(object):
-    '''
-    StrategyDesign is responsible for the basic strategy interactions. 
-    0. It receives fund allocation from the PortfolioManager
-    1. It registers with OrderManagement through the PortfolioManager, specifically to the method
-    for executing orders.
-    2. It receives a strategy order and apply the allocation of funds set by the PortfolioManager.
-    3. It holds all the required schedule_functions to add in Initialize()
-    '''
+
     def __init__(self, name):      
         self.name = name
         self.allocation = 0
@@ -16,6 +27,8 @@ class StrategyDesign(object):
         self.order_management_send_order_through = None
         self.schedule_func_list = []
         self.instruments = dict()
+        
+        self.portfolio = StrategyPortfolio()
         return
         
 #        def compute_target(self, context, data):

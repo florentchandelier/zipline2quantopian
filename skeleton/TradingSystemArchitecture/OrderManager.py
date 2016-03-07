@@ -1,5 +1,10 @@
 from necessary_import import *;
 
+'''
+To Dos:
+    1. Order Manager should have a Debug mode that traces ordering sequences.
+'''
+
 class OrderManager():
     def __init__ (self, context):
         self.context = context
@@ -49,6 +54,7 @@ class OrderManager():
             
         for k in self.order_queue_close:
             order_target_percent(k, self.order_queue_close[k])
+            print("[OrderManager - exit_positions()] order target: " +str(k) +" positions: " +str(self.order_queue_close[k]))
             
         self.order_queue_close = dict()
         return
@@ -82,6 +88,7 @@ class OrderManager():
             
         for k in self.order_queue_open:
             order_target_percent(k, self.order_queue_open[k])
+            print("[OrderManager - enter_positions()] order target: " +str(k) +" positions: " +str(self.order_queue_open[k]))
             
         self.order_queue_open = dict()
         return
@@ -95,4 +102,11 @@ class OrderManager():
         self.current_positions = dict()
         for k in self.instruments.values():
                 self.current_positions[k] = (data[k].price*self.context.portfolio.positions[k].amount) / self.context.portfolio.portfolio_value
-        return 
+        return
+        
+    def get_number_shares(self, data, percent_dict):
+        for position in input_dict:
+            target = input_dict[position]
+            # Sum value of all open positions and ending cash balance.
+            portfolio_totalvalue = self.context.portfolio.portfolio_value
+        return
