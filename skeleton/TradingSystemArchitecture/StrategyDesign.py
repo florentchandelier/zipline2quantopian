@@ -1,10 +1,9 @@
-from necessary_import import *; from StrategyPortfolio import *;
+from necessary_import import *; from StrategyPortfolio import *; from AnalyticsManager import *;
 
 '''
 
 to dos:
-    1. Strategy shall have a Debug class that may output strategies parameters 
-    and states in a pandas dataframe for analysis (in notebook for example)
+
 
 StrategyDesign is responsible for the basic strategy interactions. 
 0. It receives fund allocation from the PortfolioManager
@@ -18,10 +17,16 @@ StrategyDesign is responsible for the basic strategy interactions.
 3. It holds all the required schedule_functions to add in Initialize()
 '''
 
-class StrategyDesign(object):
+class StrategyDesign(object, AnalyticsManager):
 
     def __init__(self, name):      
         self.name = name
+        
+        # by default, the Portfolio logger is set to output to the console
+        # at a level sufficient to report problems.
+        AnalyticsManager.__init__(self, analytics_name=name)
+        self.set_log_option(logconsole=True, logfile=False, level=logging.WARNING)
+        
         self.allocation = 0
         self.order_management_send_orders = None
         self.order_management_send_order_through = None

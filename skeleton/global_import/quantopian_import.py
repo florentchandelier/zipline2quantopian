@@ -8,4 +8,7 @@ import itertools
 
 from datetime import datetime
 import pytz
+
+import logging
+from logging.handlers import RotatingFileHandler
 #from zipline.api import get_environment  

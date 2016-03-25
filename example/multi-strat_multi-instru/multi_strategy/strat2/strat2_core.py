@@ -2,8 +2,7 @@ from necessary_import import *
 
 class strat2(StrategyDesign):        
 
-    def __init__(self, context, instruments=None):
-        name = 'stupid momentum strategy'
+    def __init__(self, context, name = 'stupid momentum strategy on SPY', instruments=None):
         StrategyDesign.__init__(self, name)
 
         self.context = context
@@ -16,6 +15,11 @@ class strat2(StrategyDesign):
                       date_rule=date_rules.month_start(),
                       time_rule=time_rules.market_open(hours=1, minutes=0))
         )
+
+        '''
+        Analytics Manager
+        '''
+        self.create_analytics (name='allocation', columns=['timestamp', 'equity', 'mom'])
         return
         
     def abs_mom_up (self, data):
@@ -35,13 +39,28 @@ class strat2(StrategyDesign):
     def rebalance (self, context, data):
         inst = self.instruments.values()[0]        
         mom = self.abs_mom_up(data)
+        if mom == -1:
+            return
         
         # mom = -1 if Nan values
         target_percent_dict = dict()
         if mom == 1:
             target_percent_dict[inst] = 1
+            msg = "\n TOY EXAMPLE MSG \t"+str(get_datetime().date()) + " - Long SPY: " 
+            self.add_log('info',msg)
         elif mom == 0:
             target_percent_dict[inst] = 0
+            msg = "\n TOY EXAMPLE MSG \t"+str(get_datetime().date()) + " - Exit SPY: "
+            self.add_log('info',msg)
+            
+        '''
+        dumping anaytics: toy example as no value logging mom as-is
+        '''
+        if self.get_dumpanalytics():
+            # columns=['timestamp', 'equity', 'treasury']
+            row = [get_datetime().date(), target_percent_dict[self.instruments['equity']],
+                   mom]
+            self.insert_analyticsdata('allocation',row)
         
         self.send_percent_orders(data, target_percent_dict)
         return

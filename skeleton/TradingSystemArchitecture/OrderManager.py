@@ -1,12 +1,19 @@
-from necessary_import import *;
+from necessary_import import *; from AnalyticsManager import *;
 
 '''
 To Dos:
-    1. Order Manager should have a Debug mode that traces ordering sequences.
+    1. Convert all target percent positions in a number of instruments in order to be 
+    able to exit the specific position of a specific strategy
 '''
 
-class OrderManager():
-    def __init__ (self, context):
+class OrderManager(AnalyticsManager):
+    def __init__ (self, context, name = "OrderManager"):
+        
+        # by default, the Portfolio logger is set to output to the console
+        # at a level sufficient to report problems.
+        AnalyticsManager.__init__(self, analytics_name=name)
+        self.set_log_option(logconsole=True, logfile=False, level=logging.WARNING)
+        
         self.context = context
         self.instruments = dict()
         
@@ -14,6 +21,11 @@ class OrderManager():
         # before opening any new orders if necessary
         self.order_queue_open = dict()
         self.order_queue_close = dict()
+        
+        '''
+        Analytics Manager
+        '''
+        self.create_analytics (name='positions', columns=['timestamp', 'symbol', 'sell/target', 'buy/target'])
         return
     
     def add_instruments(self, values):
@@ -54,7 +66,13 @@ class OrderManager():
             
         for k in self.order_queue_close:
             order_target_percent(k, self.order_queue_close[k])
-            print("[OrderManager - exit_positions()] order target: " +str(k) +" positions: " +str(self.order_queue_close[k]))
+            msg = "\n\t"+str(get_datetime().date()) + " - exit_positions() order target: " +str(k) +" positions: " +str(self.order_queue_close[k])
+            self.add_log('info',msg)
+            
+            if self.get_dumpanalytics():
+                # columns=['timestamp', 'symbol', 'exit', 'enter']
+                row = [get_datetime().date(), k, self.order_queue_close[k], '-']
+                self.insert_analyticsdata('positions',row)            
             
         self.order_queue_close = dict()
         return
@@ -88,8 +106,14 @@ class OrderManager():
             
         for k in self.order_queue_open:
             order_target_percent(k, self.order_queue_open[k])
-            print("[OrderManager - enter_positions()] order target: " +str(k) +" positions: " +str(self.order_queue_open[k]))
+            msg = "\n\t"+str(get_datetime().date()) + " - enter_positions() order target: " +str(k) +" positions: " +str(self.order_queue_open[k])
+            self.add_log('info',msg)
             
+            if self.get_dumpanalytics():
+                # columns=['timestamp', 'symbol', 'exit', 'enter']
+                row = [get_datetime().date(), k, '-', self.order_queue_open[k]]
+                self.insert_analyticsdata('positions',row) 
+                
         self.order_queue_open = dict()
         return
         

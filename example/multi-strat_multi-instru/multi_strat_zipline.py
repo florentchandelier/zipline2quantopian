@@ -25,6 +25,20 @@ if __name__ == '__main__':
 
     data = load_from_yahoo(stocks=instrument, indexes={},start=algo.startDate, end=algo.endDate)
     data = data.dropna()
+    
+    '''
+    Setting Analytics and Log System
+    '''
+    algo.portf.order_management.set_dumpanalytics(False)
+    algo.portf.order_management.set_log_option(logconsole=False, logfile=False, level=logging.WARNING)    
+
+    idx = algo.portf.list_strategies.index('tlt strategy')
+    algo.portf.strategies[idx].set_log_option(logconsole=False, logfile=True, level=logging.INFO)
+    algo.portf.strategies[idx].set_dumpanalytics(True) 
+    
+    idx = algo.portf.list_strategies.index('spy strategy')
+    algo.portf.strategies[idx].set_log_option(logconsole=True, logfile=True, level=logging.INFO)
+    algo.portf.strategies[idx].set_dumpanalytics(False) 
     #
     # End Of Fetch and Load
     #
@@ -45,4 +59,10 @@ if __name__ == '__main__':
         algo.performance_analysis.render_get_gain_to_pain()        
         algo.performance_analysis.render_from_trough_to_depth_trough(-5)
         algo.performance_analysis.get_ds().plot()
+        
+    '''
+    Accessing Strategy(ies) analytics
+    '''
+    output_directory='analytics/'
+    algo.portf.analytics_save(output_directory)
         

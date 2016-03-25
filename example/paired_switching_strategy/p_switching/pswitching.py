@@ -45,8 +45,7 @@ the Sharpe ratio (return to risk) ratio of a simple SPY investment.
 '''
             
 class pswitching(StrategyDesign):
-    def __init__(self, context, instruments=None):
-        name = 'pair switching strategy'
+    def __init__(self, context, name = 'pair switching strategy', instruments=None):
         StrategyDesign.__init__(self, name)
 
         self.nbSwitch = 0
@@ -61,6 +60,12 @@ class pswitching(StrategyDesign):
                       date_rule=date_rules.month_start(),
                       time_rule=time_rules.market_open(hours=1, minutes=0))
         )
+
+        '''
+        Analytics Manager
+        '''
+        self.create_analytics (name='allocation', columns=['timestamp', 'equity', 'treasury'])
+
         return
         
     def set_configuration(self, param, value):
@@ -91,6 +96,9 @@ class pswitching(StrategyDesign):
         self.nbSwitch +=1
 
         up = self.instruments[inst]
+        msg = "\n TOY EXAMPLE MSG \t"+str(get_datetime().date()) + " - Instrument trendingup: " +str(up)
+        self.add_log('info',msg)
+                
         if (inst == 'treasury'):
             dwn = self.instruments['equity']
         else:
@@ -99,6 +107,12 @@ class pswitching(StrategyDesign):
         target_percent_dict = dict() 
         target_percent_dict[up] = 1
         target_percent_dict[dwn] = 0
+        
+        if self.get_dumpanalytics():
+            # columns=['timestamp', 'equity', 'treasury']
+            row = [get_datetime().date(), target_percent_dict[self.instruments['equity']], 
+                   target_percent_dict[self.instruments['treasury']]]
+            self.insert_analyticsdata('allocation',row)
         
         self.send_percent_orders(data, target_percent_dict)                   
         

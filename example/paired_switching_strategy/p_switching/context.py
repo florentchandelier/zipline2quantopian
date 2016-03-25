@@ -12,7 +12,7 @@ def set_init_common (context):
     context.set_commission(commission.PerTrade(cost=4.0))
     context.set_slippage(slippage.FixedSlippage(spread=0.00))
                   
-    for strategy in context.portf.list_strategies:
+    for strategy in context.portf.strategies:
         strategy.get_schedule_function()
                   
     context.schedule_function(get_cagr,

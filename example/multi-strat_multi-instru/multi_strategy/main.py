@@ -13,14 +13,14 @@ def handle_data(context, data):
               
    
 def initialize(context):
-    
-    context.portf = PortfolioManager(context)
+    name = "multi-strat"
+    context.portf = PortfolioManager(context, name)
     allocation = 0.9/2    
     
-    s1 = strat1(context)
+    s1 = strat1(context, name='tlt strategy')
     context.portf.add_strategy(s1, allocation=allocation)
     
-    s2 = strat2(context)
+    s2 = strat2(context, name='spy strategy')
     context.portf.add_strategy(s2, allocation=allocation)
            
     context.global_fund_managed = context.portf.get_portf_allocation()                                             

@@ -13,10 +13,10 @@ def handle_data(context, data):
               
    
 def initialize(context):
+    name = 'pswitching'
+    context.portf = PortfolioManager(context, name)
     
-    context.portf = PortfolioManager(context)
-    
-    s1 = pswitching(context)
+    s1 = pswitching(context, name='pair switching strategy 1')
     context.portf.add_strategy(s1, allocation=0.9)
            
     context.global_fund_managed = context.portf.get_portf_allocation()                                             
@@ -28,7 +28,7 @@ def initialize(context):
     context.cagr_period = 0
     context.env = get_environment('platform')
     set_init_common (context)
-
+    
     return
     
 

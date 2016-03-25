@@ -60,6 +60,16 @@ if __name__ == '__main__':
     #
     results = None
     
+    '''
+    logging analytics
+    '''
+    algo.portf.order_management.set_dumpanalytics(False)
+    algo.portf.order_management.set_log_option(logconsole=False, logfile=False, level=logging.WARNING)    
+
+    idx = algo.portf.list_strategies.index('pair switching strategy 1')
+    algo.portf.strategies[idx].set_log_option(logconsole=True, logfile=False, level=logging.INFO)
+    algo.portf.strategies[idx].set_dumpanalytics(True) 
+    
     if profiling_output:
         fn_pro = 'statsfile_original'
         cp_run(fn_pro)
@@ -87,3 +97,9 @@ if __name__ == '__main__':
     
     elif results is not None:
         print('Not Implemented')
+        
+    '''
+    Accessing Strategy(ies) analytics
+    '''
+    output_directory='analytics/'
+    algo.portf.analytics_save(output_directory)
