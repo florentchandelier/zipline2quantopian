@@ -1,19 +1,21 @@
 # zipline2quantopian
 
 # CONTEXT
-[Quantopian](www.quantopian.com) provides a web-framekwork for the design, backtesting, paper trading and live trading of **A**utomated **T**rading **S**ystems (**ATS**) written in python. Specifically, Quantopian provides an infrastructure that hides the complexity of the backend required to live trade ATS coded in python through Interactive Brokers. In addition to its web-frameowrk, **Quantopian open sourced** its ATS engine under [Zipline](https://github.com/quantopian/zipline), a **local** python framework enabling ATS design and backtesting (live trading components are not open sourced, although they could be developped).
+[Quantopian](www.quantopian.com) provides a web-framekwork for the design, backtesting, paper trading and live trading of **A**utomated **T**rading **S**ystems (**ATS**) written in python. Specifically, Quantopian provides an infrastructure that hides the complexity of the backend required to live trade ATS coded in python through [Interactive Brokers](https://www.interactivebrokers.ca/en/home.php). 
+
+In addition to its web-framework, **Quantopian open sourced** its ATS engine under [Zipline](https://github.com/quantopian/zipline), a **local** python framework enabling ATS design and backtesting (live trading components are not open sourced, although they could be developped).
 
 ###### MOTIVATION(s)
-Nonetheless, Quantopian does **not provide** yet an IDE where **multiple files** could be used while designing a python strategy. Every module must be maintained in a single file. As well, Quantopian does not provide yet **debugging solutions**. both limitations could be addressed by leveraging the Zipline framework in a linux environment, specifically using the [Sypder IDE](https://code.google.com/p/spyderlib/) for coding python solutions. Using Spyder one may benefit from *powerful interactive development environment for the Python language with advanced editing, interactive testing, debugging and introspection features*.
+Nonetheless, Quantopian does **not provide** yet an IDE where **multiple files** could be used while designing a python strategy (unlike [QuantConnect](https://www.quantconnect.com/)). In other words, to be traded live a given ATS must be provided as a single file. As well, Quantopian does not provide yet efficient **debugging solutions**. Both limitations could be addressed by leveraging the Zipline framework in a linux environment, specifically using the [Sypder IDE](https://code.google.com/p/spyderlib/) for coding python solutions. Using Spyder one may benefit from *powerful interactive development environment for the Python language with advanced editing, interactive testing, debugging and introspection features*.
 
 ###### OBJECTIVE(s)
-The initial objective was to address the need to *translate automatically* **Spyder/Zipline-compatible** ATS into **Quantopian-compatible** (single file) code.
+The initial objective was to address the need to *translate automatically* **Spyder/Zipline-compatible** ATS into **Quantopian-compatible** (single file) code, and support diligent ATS design and validation. Specifically, by *diligent* I mean logging relevant information from a strategy's analytics, type and size of orders (or a combination of strategies), for subsequent validation and verification after improvements, bug corrections or code enhancements.
 
-- A primary item for this repo was to provide a linux skeleton enabling Spyder-compatible ATS. Specifically, said skeleton should allow for running the ATS from within the Spyder IDE, while making the most of its debugging feature.
+- A primary purpose for this repo is to provide a linux skeleton enabling Spyder-compatible ATS. Specifically, said skeleton should allow for running the ATS from within the Spyder IDE, while making the most of its debugging feature.
 
-- A secondary item was to provide a linux skeleton enabling the **automated generation for single-file Quantopian strategyies, from a strategy designed in Zipline, involving multiple files (as traditionally accepted)**.
+- A secondary purpose is to provide a linux script enabling the **automated generation of Quantopian compatible ATS (single-file), from a strategy designed in Zipline and using the proposed seleton (involving multiple files)**.
 
-A second objective was to provide some educative ATS strategies written in Zipline and compatible with Quantopian, or Quantopian-only code snippets.
+A second objective was to provide some educative ATS strategies written in Zipline and compatible with Quantopian, or Quantopian-only code snippets, demonstrating the use of the proposed skeleton and associated script generating a Q-compatible singleton.
 
 
 ## PROPOSED SKELETON STRUCTURE
@@ -35,7 +37,9 @@ zipline2quantopian
 
 ./zipline/generic_module
 
-The objective with such structure would be to enhance the script creating the quantopian output by automatically parsing folder and generating proper filename for quantopian output. currenlty, I cannot make the import work in such structure !@#$
+./zipline/TradingArchitecture ; containing the backend for managing multiple strategies in an orderly fashion.
+
+Such directory tree shall enhance the script creating the Q-compatible output by automatically parsing directories, and generating proper filename for quantopian output. Currenlty, I cannot make the import work in such module structure !@#$
 
 ## USAGE
 [TESTED ON LINUX AND WINDOWS]
