@@ -27,13 +27,13 @@ class StrategyDesign(object, AnalyticsManager):
         AnalyticsManager.__init__(self, analytics_name=name)
         self.set_log_option(logconsole=True, logfile=False, level=logging.WARNING)
         
-        self.allocation = 0
         self.order_management_send_orders = None
         self.order_management_send_order_through = None
         self.schedule_func_list = []
         self.instruments = dict()
         
         self.portfolio = StrategyPortfolio()
+        self.portfolio.set_allocation(0)
         return
         
 #        def compute_target(self, context, data):
@@ -44,14 +44,14 @@ class StrategyDesign(object, AnalyticsManager):
         return
         
     def send_percent_orders(self, data, target_percent_dict, precision=3):
-        if self.allocation == 0:
+        if self.portfolio.get_allocation() == 0:
             return
             
         '''
         to do: must be a more pythonic way
         '''
         for i in target_percent_dict:
-            target_percent_dict[i] = round(target_percent_dict[i] * self.allocation, precision)
+            target_percent_dict[i] = round(target_percent_dict[i] * self.portfolio.get_allocation(), precision)
             
         self.order_management_send_percent_orders(data, target_percent_dict)
         return
@@ -63,13 +63,6 @@ class StrategyDesign(object, AnalyticsManager):
     def send_order_through(self, instrument, nb_shares=0, style=MarketOrder()):
         self.order_management_send_order_through(instrument, nb_shares, style=MarketOrder())
         return
-        
-    def set_allocation(self, value):
-        self.allocation = value
-        return
-        
-    def get_allocation(self):
-        return self.allocation
         
     def set_name(self, value):
         self.name = value

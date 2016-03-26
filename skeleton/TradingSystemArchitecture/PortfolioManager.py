@@ -43,7 +43,7 @@ class PortfolioManager(object, AnalyticsManager):
             self.add_log('error',msg)
             return
             
-        value.set_allocation(allocation)
+        value.portfolio.set_allocation(allocation)
         self.portf_allocation += allocation
         
         self.list_strategies.append(value.name)
