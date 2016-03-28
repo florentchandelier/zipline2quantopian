@@ -160,5 +160,11 @@ class AnalyticsManager (Analytics):
         filename = self.analytics_dump_dir+str(datetime.now())+'_analytics_'
         for name,an in self.analytics.iteritems():
             print('Getting Analytics for '+self.analytics_name +'/'+name)
-            self.analytics[name].df.to_csv(filename+name+'.csv')
+            try:
+                self.analytics[name].df.to_csv(filename+name+'.csv')
+            except (SystemExit, KeyboardInterrupt):
+                raise
+            except Exception as e:
+                logging.error('Failed writing analytics:' +str(self.analytics_name) + str(traceback.format_exc()) )
+            
         

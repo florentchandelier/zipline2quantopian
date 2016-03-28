@@ -25,7 +25,9 @@ class OrderManager(AnalyticsManager):
         '''
         Analytics Manager
         '''
-        self.create_analytics (name='positions', columns=['timestamp', 'symbol', 'sell/target', 'buy/target'])
+        self.create_analytics (name='pct_assets', columns=['timestamp', 'symbol', 'sell/target', 'buy/target'])
+        self.create_analytics (name='position_size_tracking', columns=['timestamp', 'symbol', 'size'])
+
         return
     
     def add_instruments(self, values):
@@ -72,7 +74,7 @@ class OrderManager(AnalyticsManager):
             if self.get_dumpanalytics():
                 # columns=['timestamp', 'symbol', 'exit', 'enter']
                 row = [get_datetime().date(), k, self.order_queue_close[k], '-']
-                self.insert_analyticsdata('positions',row)            
+                self.insert_analyticsdata('pct_assets',row)            
             
         self.order_queue_close = dict()
         return
@@ -112,7 +114,7 @@ class OrderManager(AnalyticsManager):
             if self.get_dumpanalytics():
                 # columns=['timestamp', 'symbol', 'exit', 'enter']
                 row = [get_datetime().date(), k, '-', self.order_queue_open[k]]
-                self.insert_analyticsdata('positions',row) 
+                self.insert_analyticsdata('pct_assets',row) 
                 
         self.order_queue_open = dict()
         return
@@ -120,6 +122,13 @@ class OrderManager(AnalyticsManager):
     def update (self):
         self.exit_positions()
         self.enter_positions()
+        
+        if self.get_dumpanalytics():
+            # loop through all current holdings
+            for inst in self.context.portfolio.positions:
+                # columns=['timestamp', 'symbol', 'size']
+                row = [get_datetime().date(), inst, self.context.portfolio.positions[inst].amount]
+                self.insert_analyticsdata('position_size_tracking',row)  
         return
 
     def update_current_positions(self, data):

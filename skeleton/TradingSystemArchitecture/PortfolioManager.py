@@ -14,7 +14,8 @@ from necessary_import import *; from OrderManager import *; from StrategyDesign 
  
 class PortfolioManager(object, AnalyticsManager):
 
-    def __init__(self, context, name):        
+    def __init__(self, context, name):
+        self.context = context # currently only required for get_portf_allocation       
         self.portf_name = name
         
         # by default, the Portfolio logger is set to output to the console
@@ -28,7 +29,7 @@ class PortfolioManager(object, AnalyticsManager):
         self.instruments = dict()
         self.strategies = list()
         
-        self.order_management = OrderManager(context, name)
+        self.order_management = OrderManager(context, name = "OrderManager")
         
         return
         
@@ -49,16 +50,24 @@ class PortfolioManager(object, AnalyticsManager):
         self.list_strategies.append(value.name)
         self.strategies.append(value)
         
+        # Registrating with third-party methods
+        #
         value.set_send_percent_orders(self.order_management.add_percent_orders)
         value.set_send_order_through(self.order_management.send_order_through)
+        value.portfolio.set_portf_allocation(self.get_portf_allocation)
+        #
+        # End of registration
         
         self.set_instruments(value.get_instruments())
         self.order_management.add_instruments(value.get_instruments())
         
         return
         
-    def get_portf_allocation(self):
-        return self.portf_allocation
+    def get_portf_allocation(self, dollar = False):
+        if dollar:
+            return self.portf_allocation * self.context.portfolio.portfolio_value
+        else:
+            return self.portf_allocation
         
     def set_instruments(self, value):
         self.instruments = merge_dicts(self.instruments, value)
