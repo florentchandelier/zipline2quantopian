@@ -29,7 +29,7 @@ class PortfolioManager(object, AnalyticsManager):
         self.instruments = dict()
         self.strategies = list()
         
-        self.order_management = OrderManager(context, name = "OrderManager")
+        self.order_manager = OrderManager(context, name = "OrderManager")
         
         return
         
@@ -52,22 +52,23 @@ class PortfolioManager(object, AnalyticsManager):
         
         # Registrating with third-party methods
         #
-        value.set_send_percent_orders(self.order_management.add_percent_orders)
-        value.set_send_order_through(self.order_management.send_order_through)
-        value.portfolio.set_portf_allocation(self.get_portf_allocation)
+#        value.set_send_percent_orders(self.order_manager.add_percent_orders)
+#        value.set_send_order_through(self.order_manager.send_order_through)
+#        value.set_add_orders(self.order_manager.add_orders)
+#        value.portfolio.set_portf_allocation(self.get_portf_allocation)
         #
         # End of registration
         
         self.set_instruments(value.get_instruments())
-        self.order_management.add_instruments(value.get_instruments())
+        self.order_manager.add_instruments(value.get_instruments())
         
         return
         
-    def get_portf_allocation(self, dollar = False):
-        if dollar:
-            return self.portf_allocation * self.context.portfolio.portfolio_value
-        else:
-            return self.portf_allocation
+    def get_portf_allocation(self):
+        return self.portf_allocation
+            
+    def get_total_portfolio_value (self):
+        return self.context.portfolio.portfolio_value
         
     def set_instruments(self, value):
         self.instruments = merge_dicts(self.instruments, value)
@@ -83,5 +84,17 @@ class PortfolioManager(object, AnalyticsManager):
             if strat.get_dumpanalytics():
                 strat.write_analytics_tocsv(output_directory=savepath)
                 
-        if self.order_management.get_dumpanalytics():
-            self.order_management.write_analytics_tocsv(output_directory=savepath)
+        if self.order_manager.get_dumpanalytics():
+            self.order_manager.write_analytics_tocsv(output_directory=savepath)
+            
+    def sendorder_to_ordermanager (self, target_dollar_value):
+        #
+        # target_dollar_value: dictionary of positions target in dollar value
+        # dict{inst; dollarvalue}
+        #
+        self.order_manager.add_orders (target_dollar_value)
+        return
+        
+    def handle_data (self, data):
+        self.order_manager.update(data)
+        return

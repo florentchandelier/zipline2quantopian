@@ -5,7 +5,7 @@ import numpy as np
 from scipy import stats as scistats
 import operator
 import itertools
-import sys
+import sys, os
 
 from datetime import datetime
 import pytz

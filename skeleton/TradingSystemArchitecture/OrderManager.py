@@ -36,11 +36,12 @@ class OrderManager(AnalyticsManager):
                                          op=operator.add)
         return
     
-    def send_order_through(self, instrument, nb_shares=0, style=MarketOrder()):
+    def send_order_through(self, data, instrument, dollar_value=0, style=MarketOrder()):
         '''
         MarketOrder()
         LimitOrder()
         '''
+        nb_shares = int(np.floor(dollar_value /float(data[instrument].price) ))
         order(instrument, nb_shares, style=style)
         return
         
@@ -61,14 +62,27 @@ class OrderManager(AnalyticsManager):
                                          self.order_queue_close,
                                          op=operator.add)
         return
+        
+    def add_orders(self, input_dict):
+        # loop through orders in dict and queue as close/open
+        for mkt_order in input_dict:
+            if input_dict[mkt_order] > 0:
+                self.order_queue_open = combine_dicts({mkt_order:input_dict[mkt_order]},
+                                         self.order_queue_open,
+                                         op=operator.add)
+            elif input_dict[mkt_order] < 0:
+                self.order_queue_close = combine_dicts({mkt_order:input_dict[mkt_order]},
+                                         self.order_queue_close,
+                                         op=operator.add)                    
     
-    def exit_positions (self):
+    def exit_positions (self, data):
         if len(self.order_queue_close)<1:
             return
             
         for k in self.order_queue_close:
-            order_target_percent(k, self.order_queue_close[k])
-            msg = "\n\t"+str(get_datetime().date()) + " - exit_positions() order target: " +str(k) +" positions: " +str(self.order_queue_close[k])
+            self.send_order_through(data, k, self.order_queue_close[k])
+            
+            msg = "\n\t"+str(get_datetime().date()) + " - exit_positions() order target in $: " +str(k) +" positions: " +str(self.order_queue_close[k])
             self.add_log('info',msg)
             
             if self.get_dumpanalytics():
@@ -79,7 +93,7 @@ class OrderManager(AnalyticsManager):
         self.order_queue_close = dict()
         return
         
-    def enter_positions(self):
+    def enter_positions(self, data):
         '''
             Objective: Prevent "not enough funds available"
                 
@@ -107,8 +121,9 @@ class OrderManager(AnalyticsManager):
             return
             
         for k in self.order_queue_open:
-            order_target_percent(k, self.order_queue_open[k])
-            msg = "\n\t"+str(get_datetime().date()) + " - enter_positions() order target: " +str(k) +" positions: " +str(self.order_queue_open[k])
+            self.send_order_through(data, k, self.order_queue_open[k])
+            
+            msg = "\n\t"+str(get_datetime().date()) + " - enter_positions() order target in $: " +str(k) +" positions: " +str(self.order_queue_open[k])
             self.add_log('info',msg)
             
             if self.get_dumpanalytics():
@@ -119,9 +134,18 @@ class OrderManager(AnalyticsManager):
         self.order_queue_open = dict()
         return
         
-    def update (self):
-        self.exit_positions()
-        self.enter_positions()
+    def update (self, data):
+        '''
+        NOTE
+        In backtests, orders are submitted in one bar, and are filled in the 
+        next bar. In daily mode your algorithm receives data once per day, at 
+        market close; so an order submitted on Monday at 4PM will get filled 
+        on Tuesday at 4PM. In minute mode, an order submitted at 10:00AM Monday
+        will get filled at 10:01AM that same Monday, where there is much less 
+        movement in the price. 
+        '''
+        self.exit_positions(data)
+        self.enter_positions(data)
         
         if self.get_dumpanalytics():
             # loop through all current holdings

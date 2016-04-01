@@ -63,12 +63,12 @@ if __name__ == '__main__':
     '''
     logging analytics
     '''
-    algo.portf.order_management.set_dumpanalytics(False)
-    algo.portf.order_management.set_log_option(logconsole=False, logfile=False, level=logging.WARNING)    
+    algo.portfolio_manager.order_manager.set_dumpanalytics(False)
+    algo.portfolio_manager.order_manager.set_log_option(logconsole=False, logfile=False, level=logging.WARNING)    
 
-    idx = algo.portf.list_strategies.index('pair switching strategy 1')
-    algo.portf.strategies[idx].set_log_option(logconsole=True, logfile=False, level=logging.INFO)
-    algo.portf.strategies[idx].set_dumpanalytics(True) 
+    idx = algo.portfolio_manager.list_strategies.index('pair switching strategy 1')
+    algo.portfolio_manager.strategies[idx].set_log_option(logconsole=True, logfile=False, level=logging.INFO)
+    algo.portfolio_manager.strategies[idx].set_dumpanalytics(True) 
     
     if profiling_output:
         fn_pro = 'statsfile_original'
@@ -102,4 +102,4 @@ if __name__ == '__main__':
     Accessing Strategy(ies) analytics
     '''
     output_directory='analytics/'
-    algo.portf.analytics_save(output_directory)
+    algo.portfolio_manager.analytics_save(output_directory)

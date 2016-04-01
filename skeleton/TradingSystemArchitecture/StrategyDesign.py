@@ -28,80 +28,41 @@ class StrategyDesign(object, AnalyticsManager):
         AnalyticsManager.__init__(self, analytics_name=name)
         self.set_log_option(logconsole=True, logfile=False, level=logging.WARNING)
         
-        # These are registered by the PortfolioManager with OrderManager
-        #
-        self.order_management_send_orders = None
-        self.order_management_send_order_through = None
-        self.order_management_send_percent_orders = None
-        #
-        # End of order_management
-        
         self.schedule_func_list = []
         self.instruments = dict()
         
-        self.portfolio = StrategyPortfolio()
+        self.portfolio = StrategyPortfolio(context.portfolio_manager)
         self.portfolio.set_allocation(0)
         return
-        
-#        def compute_target(self, context, data):
-#            raise NotImplementedError()
-        
-    def set_send_percent_orders(self, value):
-        # Used in registration with OrderManager in the PortfolioManager
+    
+    def send_order (self, data, signal_type, value):
+        # handling a dictionary of percent order(s)
         #
-        self.order_management_send_percent_orders = value
-        return
-        
-    def send_percent_orders(self, data, target_percent_dict, precision=3):
-        if self.portfolio.get_allocation() == 0:
-            return
-            
-        '''
-        to do: must be a more pythonic way
-        '''
-        for i in target_percent_dict:
-            target_percent_dict[i] = round(target_percent_dict[i] * self.portfolio.get_allocation(), precision)
-            
-#        self.order_management_send_percent_orders(data, target_percent_dict)
-        msg = ' line #66: send_percent_orders has been commented out while testing market order positions'
-        self.add_log('warning', msg)
-        
-        self.convert_percent_to_shares(data, target_percent_dict)
+        if signal_type == 'pct':
+            self._send_percent_order (data, value)
         return
     
-    def convert_percent_to_shares (self, data, pct):
-        allocated_value = self.portfolio.portf_management_allocation(dollar=True)
+    def _send_percent_order (self, data, pct):
+        # for a strategy, what makes sense is the dollar value for a position
+        # it should be the job of the OrderManager to get proper position size
+        # based on market value when order will be filled (there might be 
+        # priorities for orders to be filled, thus last time position sizing
+        # is a good practice)
+        target_dollar_value = dict()
         
-        # convert each instrument pct into a number of shares
+        allocated_value = self.portfolio.get_allocation(allocation_type='dollar')
+        # convert each instrument pct into a dollar value position
         for inst in pct:
             # inherently takes into account strategy allocation in portfolio
             dollar_value = pct[inst] *allocated_value
-            # to prevent problem, submit an 'int' to the market.
-            nb = int(np.floor(dollar_value / float(data[inst].price)))
             # update desired strategy targeted allocation
-            self.portfolio.assets[inst] = nb
+            self.portfolio.assets[inst] = dollar_value
             
-        # determine market orders to reach targeted number of shares
-        market_orders = dict()
-        for inst in self.portfolio.assets:
-            # current instrument nb_shares
-            current_nb = self.context.portfolio.positions[symbol(inst)].amount
-            # negative is short, positive is long
-            nb_shares = int(self.portfolio.assets[inst] - current_nb)
-            if nb_shares != int(0):
-#                market_orders = merge_dicts(market_orders, {inst:nb_shares})
-                self.send_order_through(inst, nb_shares)
-                
-#        print('target: ' +str(self.portfolio.assets))
-#        print('market order: ' +str(market_orders))
-        return
-    
-    def set_send_order_through(self, value):
-        self.order_management_send_order_through = value
-        return
-        
-    def send_order_through(self, instrument, nb_shares=0, style=MarketOrder()):
-        self.order_management_send_order_through(instrument, nb_shares, style=MarketOrder())
+            current_value = self.context.portfolio.positions[symbol(inst)].amount *data[inst].price
+            tgt_dollar_value = self.portfolio.assets[inst] - current_value
+            target_dollar_value = merge_dicts(target_dollar_value, {inst:tgt_dollar_value})
+            
+        self.context.portfolio_manager.sendorder_to_ordermanager (target_dollar_value)
         return
         
     def set_name(self, value):

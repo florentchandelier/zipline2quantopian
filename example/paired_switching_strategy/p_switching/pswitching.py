@@ -46,7 +46,7 @@ the Sharpe ratio (return to risk) ratio of a simple SPY investment.
             
 class pswitching(StrategyDesign):
     def __init__(self, context, name = 'pair switching strategy', instruments=None):
-        StrategyDesign.__init__(self, name)
+        StrategyDesign.__init__(self, context, name)
 
         self.nbSwitch = 0
         self.lookback = 3*21 # 4 months period, 21 trading days per month
@@ -113,7 +113,6 @@ class pswitching(StrategyDesign):
             row = [get_datetime().date(), target_percent_dict[self.instruments['equity']], 
                    target_percent_dict[self.instruments['treasury']]]
             self.insert_analyticsdata('allocation',row)
-        
-        self.send_percent_orders(data, target_percent_dict)                   
-        
+                         
+        self.send_order(data, signal_type='pct', value=target_percent_dict) 
         return      
