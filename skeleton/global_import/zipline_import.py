@@ -1,3 +1,4 @@
+
 import os, sys
 lib_path = os.path.abspath('../generic_modules/')
 sys.path.append(lib_path)
@@ -28,6 +29,10 @@ from zipline.utils import *
 import pylab as pl
 import matplotlib.pyplot as plt
 import matplotlib.dates as dates
+
+import logging as log
+from logging.handlers import RotatingFileHandler
+import traceback
 
 from zp_plot import *
 from zp_perf_analysis import *

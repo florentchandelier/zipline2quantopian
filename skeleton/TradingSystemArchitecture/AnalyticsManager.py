@@ -70,11 +70,11 @@ class AnalyticsManager (Analytics):
         
     def set_log_console (self, level):
         # creating a second handler to write log on console/terminal
-        ch = logging.StreamHandler()
+        ch = log.StreamHandler()
         
         # create console handler with a higher log level
         ch.setLevel(level)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        formatter = log.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         ch.setFormatter(formatter)
         self.__logger.addHandler(ch)
         
@@ -83,6 +83,10 @@ class AnalyticsManager (Analytics):
         return True
         
     def set_log_file (self, level):
+        '''
+        RotatingFileHandler cannot be used on Quantopian for security
+        reasons. A warning during build will be issued but not an error.
+        '''
         # redirecting log info in a file handler
         # append log info with a mx size of 1Mo
         fh = RotatingFileHandler(self.analytics_name+'.log', 'a', 1000000, 1)
@@ -90,7 +94,7 @@ class AnalyticsManager (Analytics):
         # create file handler which logs even debug messages
         fh.setLevel(level)
         # create formatter and add it to the handlers
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        formatter = log.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         fh.setFormatter(formatter)
         self.__logger.addHandler(fh)
         
@@ -99,9 +103,9 @@ class AnalyticsManager (Analytics):
         
         return True
         
-    def set_log_option(self, logconsole=False, logfile=False, level=logging.WARNING):       
+    def set_log_option(self, logconsole=False, logfile=False, level=log.WARNING):       
         # create logger object
-        self.__logger = logging.getLogger(self.analytics_name)
+        self.__logger = log.getLogger(self.analytics_name)
         # clearing any existing handlers : not pretty but efficient, and
         # reassociating handlers based on user-configuration input param.
         self.__logger.handlers = []
@@ -165,6 +169,6 @@ class AnalyticsManager (Analytics):
             except (SystemExit, KeyboardInterrupt):
                 raise
             except Exception as e:
-                logging.error('Failed writing analytics:' +str(self.analytics_name) + str(traceback.format_exc()) )
+                log.error('Failed writing analytics:' +str(self.analytics_name) + str(traceback.format_exc()) )
             
         

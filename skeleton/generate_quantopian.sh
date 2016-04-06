@@ -136,7 +136,10 @@ do
 done
 
 # include all classes involved in the Trading System Architecture
-for generic_function in $(find -H "$dir_architecture" -type f -name '*.py')
+# "| sort -k 2 -n" enables sorting alphanumerically, thus AnalyticsManager comes first. One could force the order in an obvious manner.
+# same is true for "sort -V"
+# ref: http://stackoverflow.com/questions/7992689/bash-how-to-loop-all-files-in-sorted-order
+for generic_function in $(find -H "$dir_architecture" -type f -name '*.py' | sort -V)
     do
     if !( echo -e $generic_function | egrep -i "import|init")
     then
