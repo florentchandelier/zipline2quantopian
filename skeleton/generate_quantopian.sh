@@ -141,7 +141,10 @@ done
 # ref: http://stackoverflow.com/questions/7992689/bash-how-to-loop-all-files-in-sorted-order
 for generic_function in $(find -H "$dir_architecture" -type f -name '*.py' | sort -V)
     do
-    if !( echo -e $generic_function | egrep -i "import|init")
+    # AnalyticsManager must be removed and replaced by 0_quantopian_AnalyticsManager
+    # dirty trick to benefit from logging while maintaning compatibility with 
+    # Quantopian limitation and use of logbook 
+    if !( echo -e $generic_function | egrep -i "import|init|\<AnalyticsManager\>")
     then
         # remove file path to keep only filename = module_name (assumed)
         module="`basename $generic_function`"
@@ -171,7 +174,6 @@ do
 		then
 			echo -e " \n\n #### File: $main_file ###"  >>  $output_file
 			# remove the first line of each file (containing the import)
-            quantopian
 			content=$(tail -n +2 $main_file)
             content="${content//context.schedule/schedule}"
             echo -e "$content" >> $output_file

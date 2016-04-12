@@ -12,7 +12,7 @@ class OrderManager(AnalyticsManager):
         # by default, the Portfolio logger is set to output to the console
         # at a level sufficient to report problems.
         AnalyticsManager.__init__(self, analytics_name=name)
-        self.set_log_option(logconsole=True, logfile=False, level=log.WARNING)
+        self.set_log_option(logconsole=True, logfile=False, level=3)
         
         self.context = context
         self.instruments = dict()

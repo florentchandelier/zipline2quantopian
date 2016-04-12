@@ -34,8 +34,6 @@ import logging as log
 from logging.handlers import RotatingFileHandler
 import traceback
 
-import logbook as logger
-
 from zp_plot import *
 from zp_perf_analysis import *
 import zp_performance_summary

@@ -24,6 +24,13 @@ QUANTOPIAN PREVENTED THE USUAL USE OF LOGGING AT THE BEGINING OF A MODULE.
 ACCORDINGLY, SUCH A LOGGING CLASS WAS REQUIRED 
 (I THINK ... LET ME KNOW OTHERWISE).
 
+import logbook
+logbook.CRITICAL  6
+logbook.ERROR     5
+logbook.WARNING   4
+logbook.NOTICE    3 
+logbook.INFO      2
+logbook.DEBUG     1
 '''
 
 class Analytics ():
@@ -68,7 +75,25 @@ class AnalyticsManager (Analytics):
     def get_log (self):
         return self.__log_state
         
+    def level_logbook2logging (self, level):
+        if level == 6:
+            return log.CRITICAL
+        elif level == 5:
+            return log.ERROR
+        elif level == 4:
+            return log.WARNING
+        elif level == 3:
+            return log.WARNING
+        elif level == 2:
+            return log.INFO
+        elif level == 1:
+            return log.DEBUG
+                
+        
     def set_log_console (self, level):
+        '''
+        level is adjusted in set_log_option()
+        '''        
         # creating a second handler to write log on console/terminal
         ch = log.StreamHandler()
         
@@ -82,8 +107,10 @@ class AnalyticsManager (Analytics):
         self.add_log('info',msg)
         return True
         
-    def set_log_file (self, level):
+    def set_log_file (self, level):        
         '''
+        level is adjusted in set_log_option()
+        
         RotatingFileHandler cannot be used on Quantopian for security
         reasons. A warning during build will be issued but not an error.
         '''
@@ -103,7 +130,9 @@ class AnalyticsManager (Analytics):
         
         return True
         
-    def set_log_option(self, logconsole=False, logfile=False, level=log.WARNING):       
+    def set_log_option(self, logconsole=False, logfile=False, level=3):
+        level = self.level_logbook2logging(level)
+        
         # create logger object
         self.__logger = log.getLogger(self.analytics_name)
         # clearing any existing handlers : not pretty but efficient, and
