@@ -63,12 +63,13 @@ if __name__ == '__main__':
     '''
     logging analytics
     '''
+    log_level = 2 # 2-INFO; 3=WARNING .... check AnalyticsManager module
     algo.portfolio_manager.order_manager.set_dumpanalytics(False)
-    algo.portfolio_manager.order_manager.set_log_option(logconsole=False, logfile=False, level=logging.WARNING)    
+    algo.portfolio_manager.order_manager.set_log_option(logconsole=False, logfile=False, level=log_level)    
 
     idx = algo.portfolio_manager.list_strategies.index('pair switching strategy 1')
-    algo.portfolio_manager.strategies[idx].set_log_option(logconsole=True, logfile=False, level=logging.INFO)
-    algo.portfolio_manager.strategies[idx].set_dumpanalytics(True) 
+    algo.portfolio_manager.strategies[idx].set_dumpanalytics(True)
+    algo.portfolio_manager.strategies[idx].set_log_option(logconsole=True, logfile=False, level=log_level) 
     
     if profiling_output:
         fn_pro = 'statsfile_original'

@@ -59,15 +59,15 @@ class AnalyticsManager ():
             return
 
         # no critical in Quantopian logbook
-        if logtype == 'critical':
+        if self.__logger.level >3 and logtype == 'critical':
             self.__logger.error(msg)        
-        elif logtype == 'error':
+        elif self.__logger.level >3 and logtype == 'error':
             self.__logger.error(msg)
-        elif logtype == 'warning':
+        elif self.__logger.level ==3 and logtype == 'warning':
             self.__logger.warning(msg)
-        elif logtype == 'info':
+        elif self.__logger.level == 2 and logtype == 'info':
             self.__logger.info(msg)
-        elif logtype == 'debug':
+        elif self.__logger.level < 2 and logtype == 'debug':
             self.__logger.debug(msg)
         return
         

@@ -161,9 +161,9 @@ class OrderManager(AnalyticsManager):
                 self.current_positions[k] = (data[k].price*self.context.portfolio.positions[k].amount) / self.context.portfolio.portfolio_value
         return
         
-    def get_number_shares(self, data, percent_dict):
-        for position in input_dict:
-            target = input_dict[position]
-            # Sum value of all open positions and ending cash balance.
-            portfolio_totalvalue = self.context.portfolio.portfolio_value
-        return
+#    def get_number_shares(self, data, percent_dict):
+#        for position in input_dict:
+#            target = input_dict[position]
+#            # Sum value of all open positions and ending cash balance.
+#            portfolio_totalvalue = self.context.portfolio.portfolio_value
+#        return

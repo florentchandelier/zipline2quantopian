@@ -2,7 +2,7 @@ from necessary_import import *
 
 class strat1(StrategyDesign):
     def __init__(self, context, name = 'stupid momentum strategy on TLT', instruments=None):
-        StrategyDesign.__init__(self, name)
+        StrategyDesign.__init__(self, context, name)
 
         self.context = context
         self.lookback = 3*21 # 4 months period, 21 trading days per month
@@ -45,11 +45,11 @@ class strat1(StrategyDesign):
         target_percent_dict = dict()
         if mom == 1:
             target_percent_dict[inst] = 1
-            msg = "\n TOY EXAMPLE MSG \t"+str(get_datetime().date()) + " - Long TLT: "
+            msg = " TOY EXAMPLE MSG "+str(get_datetime().date()) + " - Long TLT: "
             self.add_log('info',msg)
         elif mom == 0:
             target_percent_dict[inst] = 0
-            msg = "\n TOY EXAMPLE MSG \t"+str(get_datetime().date()) + " - Exit TLT: "
+            msg = " TOY EXAMPLE MSG "+str(get_datetime().date()) + " - Exit TLT: "
             self.add_log('info',msg)
         
         '''
@@ -61,5 +61,5 @@ class strat1(StrategyDesign):
                    mom]
             self.insert_analyticsdata('allocation',row)
             
-        self.send_percent_orders(data, target_percent_dict)
+        self.send_order(data, signal_type='pct', value=target_percent_dict) 
         return

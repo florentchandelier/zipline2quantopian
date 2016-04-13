@@ -29,16 +29,17 @@ if __name__ == '__main__':
     '''
     Setting Analytics and Log System
     '''
-    algo.portf.order_management.set_dumpanalytics(False)
-    algo.portf.order_management.set_log_option(logconsole=False, logfile=False, level=logging.WARNING)    
+    log_level = 2 # 2-INFO; 3=WARNING .... check AnalyticsManager module
+    algo.portfolio_manager.order_manager.set_dumpanalytics(False)
+    algo.portfolio_manager.order_manager.set_log_option(logconsole=False, logfile=False, level=log_level)    
 
-    idx = algo.portf.list_strategies.index('tlt strategy')
-    algo.portf.strategies[idx].set_log_option(logconsole=False, logfile=True, level=logging.INFO)
-    algo.portf.strategies[idx].set_dumpanalytics(True) 
+    idx = algo.portfolio_manager.list_strategies.index('tlt strategy')
+    algo.portfolio_manager.strategies[idx].set_log_option(logconsole=False, logfile=False, level=log_level)
+    algo.portfolio_manager.strategies[idx].set_dumpanalytics(True) 
     
-    idx = algo.portf.list_strategies.index('spy strategy')
-    algo.portf.strategies[idx].set_log_option(logconsole=True, logfile=True, level=logging.INFO)
-    algo.portf.strategies[idx].set_dumpanalytics(False) 
+    idx = algo.portfolio_manager.list_strategies.index('spy strategy')
+    algo.portfolio_manager.strategies[idx].set_log_option(logconsole=False, logfile=True, level=log_level)
+    algo.portfolio_manager.strategies[idx].set_dumpanalytics(False) 
     #
     # End Of Fetch and Load
     #
@@ -64,5 +65,5 @@ if __name__ == '__main__':
     Accessing Strategy(ies) analytics
     '''
     output_directory='analytics/'
-    algo.portf.analytics_save(output_directory)
+    algo.portfolio_manager.analytics_save(output_directory)
         

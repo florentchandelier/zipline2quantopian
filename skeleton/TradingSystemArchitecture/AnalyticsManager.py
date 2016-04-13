@@ -88,6 +88,8 @@ class AnalyticsManager (Analytics):
             return log.INFO
         elif level == 1:
             return log.DEBUG
+        else:
+            return log.DEBUG
                 
         
     def set_log_console (self, level):

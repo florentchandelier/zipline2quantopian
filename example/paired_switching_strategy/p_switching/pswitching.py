@@ -96,7 +96,7 @@ class pswitching(StrategyDesign):
         self.nbSwitch +=1
 
         up = self.instruments[inst]
-        msg = "\n TOY EXAMPLE MSG \t"+str(get_datetime().date()) + " - Instrument trendingup: " +str(up)
+        msg = "TOY EXAMPLE MSG: "+str(get_datetime().date()) + " - Instrument trendingup: " +str(up)
         self.add_log('info',msg)
                 
         if (inst == 'treasury'):

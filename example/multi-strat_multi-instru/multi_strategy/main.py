@@ -2,7 +2,7 @@ from necessary_import import *; from context import *; from strat1.strat1_core i
 
 def handle_data(context, data):
     
-    context.portf.order_management.update()
+    context.portfolio_manager.handle_data(data)
     
     # visually check for accidental "borrowing of cash
     check_cash_status(context) 
@@ -14,17 +14,17 @@ def handle_data(context, data):
    
 def initialize(context):
     name = "multi-strat"
-    context.portf = PortfolioManager(context, name)
+    context.portfolio_manager = PortfolioManager(context, name)
     allocation = 0.9/2    
     
     s1 = strat1(context, name='tlt strategy')
-    context.portf.add_strategy(s1, allocation=allocation)
+    context.portfolio_manager.add_strategy(s1, allocation=allocation)
     
     s2 = strat2(context, name='spy strategy')
-    context.portf.add_strategy(s2, allocation=allocation)
+    context.portfolio_manager.add_strategy(s2, allocation=allocation)
            
-    context.global_fund_managed = context.portf.get_portf_allocation()                                             
-    context.instrument = context.portf.get_instruments()  
+    context.global_fund_managed = context.portfolio_manager.get_portf_allocation()                                             
+    context.instrument = context.portfolio_manager.get_instruments()  
         
     # store portfolio_value when fast_backtest is activated    
     context.performance_analysis = []
