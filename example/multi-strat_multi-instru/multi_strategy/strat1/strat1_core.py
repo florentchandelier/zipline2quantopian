@@ -25,13 +25,16 @@ class strat1(StrategyDesign):
     def abs_mom_up (self, data):
         inst = self.instruments.values()[0]
         
-        prices = history(self.lookback, '1d', 'price')
+#        prices = history(self.lookback, '1d', 'price')
+        security_list = self.instruments.values()
+        prices = data.history(security_list, 'price', self.lookback, '1d')
         NbNan = np.count_nonzero(np.isnan(prices))
         if NbNan > 0:
             return -1
                 
         mom = prices.mean()
-        if data[inst].price > mom[inst]:
+#        if data[inst].price > mom[inst]:
+        if data.current(inst, 'price') > mom[inst]:
             return 1
         else:
             return 0

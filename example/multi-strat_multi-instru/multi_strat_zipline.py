@@ -18,28 +18,32 @@ TLT
 	
 if __name__ == '__main__':
     
-    fast_backtest = True
-    algo = TradingAlgorithm(initialize=initialize, handle_data=handle_data, capital_base = 10000, fast_backtest=fast_backtest)
-    
-    instrument = [''.join(w) for w in algo.instrument.values()]
+#    fast_backtest = True
+#    algo = TradingAlgorithm(initialize=initialize, handle_data=handle_data, capital_base = 10000, fast_backtest=fast_backtest)
+    algo = TradingAlgorithm(initialize=initialize, handle_data=handle_data)
 
-    data = load_from_yahoo(stocks=instrument, indexes={},start=algo.startDate, end=algo.endDate)
+#    instrument = [''.join(w) for w in algo.instrument.values()]
+    instrument = ['SPY', 'TLT']
+    startDate = datetime(2004, 1, 1, 0, 0, 0, 0, pytz.utc)
+    endDate = datetime(2015, 1, 1, 0, 0, 0, 0, pytz.utc) 
+
+    data = load_from_yahoo(stocks=instrument, indexes={},start=startDate, end=endDate)
     data = data.dropna()
     
     '''
     Setting Analytics and Log System
     '''
-    log_level = 2 # 2-INFO; 3=WARNING .... check AnalyticsManager module
-    algo.portfolio_manager.order_manager.set_dumpanalytics(False)
-    algo.portfolio_manager.order_manager.set_log_option(logconsole=False, logfile=False, level=log_level)    
-
-    idx = algo.portfolio_manager.list_strategies.index('tlt strategy')
-    algo.portfolio_manager.strategies[idx].set_log_option(logconsole=False, logfile=False, level=log_level)
-    algo.portfolio_manager.strategies[idx].set_dumpanalytics(True) 
-    
-    idx = algo.portfolio_manager.list_strategies.index('spy strategy')
-    algo.portfolio_manager.strategies[idx].set_log_option(logconsole=False, logfile=True, level=log_level)
-    algo.portfolio_manager.strategies[idx].set_dumpanalytics(False) 
+#    log_level = 2 # 2-INFO; 3=WARNING .... check AnalyticsManager module
+#    algo.portfolio_manager.order_manager.set_dumpanalytics(False)
+#    algo.portfolio_manager.order_manager.set_log_option(logconsole=False, logfile=False, level=log_level)    
+#
+#    idx = algo.portfolio_manager.list_strategies.index('tlt strategy')
+#    algo.portfolio_manager.strategies[idx].set_log_option(logconsole=False, logfile=False, level=log_level)
+#    algo.portfolio_manager.strategies[idx].set_dumpanalytics(True) 
+#    
+#    idx = algo.portfolio_manager.list_strategies.index('spy strategy')
+#    algo.portfolio_manager.strategies[idx].set_log_option(logconsole=False, logfile=True, level=log_level)
+#    algo.portfolio_manager.strategies[idx].set_dumpanalytics(False) 
     #
     # End Of Fetch and Load
     #
