@@ -41,7 +41,8 @@ class OrderManager(AnalyticsManager):
         MarketOrder()
         LimitOrder()
         '''
-        nb_shares = int(np.floor(dollar_value /float(data[instrument].price) ))
+#        nb_shares = int(np.floor(dollar_value /float(data[instrument].price) ))
+        nb_shares = int(np.floor(dollar_value /float(data.current(instrument,'price')) ))
         order(instrument, nb_shares, style=style)
         return
         

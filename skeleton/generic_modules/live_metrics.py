@@ -26,5 +26,6 @@ def get_cagr(context, data):
         
         cagr = np.power(current_value/initial_value, 1/float(context.cagr_period/12) )-1
         
-        print( '['+str(data.items()[0][1].datetime.year) +'-'+str(data.items()[0][1].datetime.month)+'] > CAGR = ' +str(cagr))
+#        print( '['+str(data.items()[0][1].datetime.year) +'-'+str(data.items()[0][1].datetime.month)+'] > CAGR = ' +str(cagr))
+        print( '['+str(get_datetime().date().year) +'-'+str(get_datetime().date().month)+'] > CAGR = ' +str(cagr))
     return

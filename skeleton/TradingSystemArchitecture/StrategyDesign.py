@@ -58,7 +58,8 @@ class StrategyDesign(object, AnalyticsManager):
             # update desired strategy targeted allocation
             self.portfolio.assets[inst] = dollar_value
             
-            current_value = self.context.portfolio.positions[inst].amount *data[inst].price
+#            current_value = self.context.portfolio.positions[inst].amount *data[inst].price
+            current_value = self.context.portfolio.positions[inst].amount *data.current(inst, 'price')
             tgt_dollar_value = self.portfolio.assets[inst] - current_value
             target_dollar_value = merge_dicts(target_dollar_value, {inst:tgt_dollar_value})
             
