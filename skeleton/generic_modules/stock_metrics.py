@@ -3,7 +3,9 @@ from necessary_import import *
 def get_ratereturn (context, data, lookback):
     rateReturn = 0
     # Request history from the last period days
-    prices = history(lookback, '1d', 'price')
+#    prices = history(lookback, '1d', 'price')
+    security_list = context.instrument.values()
+    prices = data.history(security_list, 'price', lookback, '1d')
     # compute returns over the period
     rateReturn = (prices.ix[-1] - prices.ix[0]) / prices.ix[0]
     return(rateReturn)

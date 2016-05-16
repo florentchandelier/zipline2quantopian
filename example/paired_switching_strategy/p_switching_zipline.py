@@ -50,10 +50,16 @@ if __name__ == '__main__':
     profiling_output = False
     
     fast_backtest = True
-    algo = TradingAlgorithm(initialize=initialize, handle_data=handle_data, capital_base = 10000, fast_backtest=fast_backtest)
+#    algo = TradingAlgorithm(initialize=initialize, handle_data=handle_data, capital_base = 10000, fast_backtest=fast_backtest)
+    algo = TradingAlgorithm(initialize=initialize, handle_data=handle_data)
+     
+#    instrument = [''.join(w) for w in algo.instrument.values()]
+    start = datetime(2004, 1, 1, 0, 0, 0, 0, pytz.utc)
+    end = datetime(2015, 1, 1, 0, 0, 0, 0, pytz.utc)
     
-    instrument = [''.join(w) for w in algo.instrument.values()]
-    data = load_from_yahoo(stocks=instrument, indexes={},start=algo.startDate, end=algo.endDate)
+    instrument = ['SPY', 'TLT']
+#    data = load_from_yahoo(stocks=instrument, indexes={},start=algo.startDate, end=algo.endDate)
+    data = load_from_yahoo(stocks=instrument, indexes={},start=start, end=end)
     data = data.dropna()
     #
     # End Of Fetch and Load
@@ -63,13 +69,13 @@ if __name__ == '__main__':
     '''
     logging analytics
     '''
-    log_level = 2 # 2-INFO; 3=WARNING .... check AnalyticsManager module
-    algo.portfolio_manager.order_manager.set_dumpanalytics(False)
-    algo.portfolio_manager.order_manager.set_log_option(logconsole=False, logfile=False, level=log_level)    
-
-    idx = algo.portfolio_manager.list_strategies.index('pair switching strategy 1')
-    algo.portfolio_manager.strategies[idx].set_dumpanalytics(True)
-    algo.portfolio_manager.strategies[idx].set_log_option(logconsole=True, logfile=False, level=log_level) 
+#    log_level = 2 # 2-INFO; 3=WARNING .... check AnalyticsManager module
+#    algo.portfolio_manager.order_manager.set_dumpanalytics(False)
+#    algo.portfolio_manager.order_manager.set_log_option(logconsole=False, logfile=False, level=log_level)    
+#
+#    idx = algo.portfolio_manager.list_strategies.index('pair switching strategy 1')
+#    algo.portfolio_manager.strategies[idx].set_dumpanalytics(False)
+#    algo.portfolio_manager.strategies[idx].set_log_option(logconsole=False, logfile=False, level=log_level) 
     
     if profiling_output:
         fn_pro = 'statsfile_original'

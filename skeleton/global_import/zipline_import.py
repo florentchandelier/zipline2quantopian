@@ -22,7 +22,7 @@ from zipline.finance import *
 from zipline.gens import *  
 from zipline.protocol import *  
 from zipline.sources import *  
-from zipline.transforms import *  
+#from zipline.transforms import *  
 from zipline.utils import *  
 #from zipline.version import *
 
