@@ -1,6 +1,9 @@
 from necessary_import import *
 
-def check_cash_status(context):
+def record_func (context, data):
+    record(leverage=context.account.leverage)
+    
+def check_cash_status(context, data):
     
     if context.portfolio.cash < 0:
         if context.env == 'quantopian':
