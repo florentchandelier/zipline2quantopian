@@ -238,3 +238,6 @@ while IFS= read -r; do
 		done
 	fi
 done < <(jq <"$conf_file" -r '.z2q_conf.dir_generic_func')
+
+echo -e "\n!!! Output Quantopian script: $output_file "
+echo -e "\n!!! REMEMBER: Yahoo is adjusted to 1 date, Q2 is adjusted at every point in time \n\n"
