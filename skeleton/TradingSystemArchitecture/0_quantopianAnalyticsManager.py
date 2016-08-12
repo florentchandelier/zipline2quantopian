@@ -16,8 +16,16 @@ class AnalyticsManager ():
         self.__analyticsdump = False
         
         self.__log_state = False
-        # create logger object
-        self.__logger = log
+        # create logger object - Only a single logger in Quantopian
+        # (not per object instance)
+        # self.__logger = log
+        
+        '''
+        by default log.level is at lowest, =0
+        we must set opposite at max, =4, to account for user choices
+        '''
+        if log.level == 0:
+            log.level = 4
         
         self.analytics = dict()
         return
@@ -42,8 +50,10 @@ class AnalyticsManager ():
         return True
         
     def set_log_option(self, logconsole=False, logfile=False, level=3):              
-        # create logger with 'spam_application'
-        self.__logger.level = level
+        # in Quantopian, only one logger, thus Last Setup Applies to All
+        # we make sure we pick the lowest level desired        
+        if level < log.level:
+            log.level = level
         
         self.__log_state = logconsole or logfile
                    
@@ -57,18 +67,18 @@ class AnalyticsManager ():
     def add_log(self, logtype, msg):
         if not self.get_log():
             return
-
-        # no critical in Quantopian logbook
-        if self.__logger.level >3 and logtype == 'critical':
-            self.__logger.error(msg)        
-        elif self.__logger.level >3 and logtype == 'error':
-            self.__logger.error(msg)
-        elif self.__logger.level ==3 and logtype == 'warning':
-            self.__logger.warning(msg)
-        elif self.__logger.level == 2 and logtype == 'info':
-            self.__logger.info(msg)
-        elif self.__logger.level < 2 and logtype == 'debug':
-            self.__logger.debug(msg)
+            
+        # get_datetime is UTC by default so set it to NYC exchange for Quantopian
+        timestamped_msg = "backtest time: " +str(get_datetime('US/Eastern')) + msg
+        # no critical in Quantopian logbook       
+        if log.level >3 and logtype in ['error', 'critical']:
+            log.error(timestamped_msg)
+        elif log.level ==3 and logtype in ['warning', 'error', 'critical']:
+            log.warn(timestamped_msg)
+        elif log.level <= 2 and logtype in ['info', 'warning', 'error', 'critical']:
+            log.info(timestamped_msg)
+        elif log.level < 2 and logtype in ['debug', 'info', 'warning', 'error', 'critical']:
+            log.debug(timestamped_msg)
         return
         
     def set_dumpanalytics (self, status):

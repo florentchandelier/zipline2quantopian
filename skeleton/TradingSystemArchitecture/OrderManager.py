@@ -12,7 +12,7 @@ class OrderManager(AnalyticsManager):
         # by default, the Portfolio logger is set to output to the console
         # at a level sufficient to report problems.
         AnalyticsManager.__init__(self, analytics_name=name)
-        self.set_log_option(logconsole=True, logfile=False, level=3)
+        self.set_log_option(logconsole=False, logfile=False, level=3)
         
         self.context = context
         self.instruments = dict()
@@ -28,6 +28,16 @@ class OrderManager(AnalyticsManager):
         self.create_analytics (name='pct_assets', columns=['timestamp', 'symbol', 'sell/target', 'buy/target'])
         self.create_analytics (name='position_size_tracking', columns=['timestamp', 'symbol', 'size'])
 
+        return
+
+    def monitor_unfilled_orders (self, context, data):     
+        # retrieve all the open (unfilled) orders
+        open_orders = get_open_orders()
+        
+        if open_orders:
+            msg = " unfilled orders before market close "
+            self.add_log('warning',msg)
+        
         return
     
     def add_instruments(self, values):
@@ -83,7 +93,7 @@ class OrderManager(AnalyticsManager):
         for k in self.order_queue_close:
             self.send_order_through(data, k, self.order_queue_close[k])
             
-            msg = "\n\t"+str(get_datetime().date()) + " - exit_positions() order target in $: " +str(k) +" positions: " +str(self.order_queue_close[k])
+            msg = "\n\t" + " - exit_positions() order target in $: " +str(k) +" positions: " +str(self.order_queue_close[k])
             self.add_log('info',msg)
             
             if self.get_dumpanalytics():
@@ -115,16 +125,16 @@ class OrderManager(AnalyticsManager):
         if data_freq == 'minute' and (len(self.order_queue_open) <1 or len(self.order_queue_close)>1 or len(get_open_orders()) > 0):
             if len(self.order_queue_close)>1:
                 msg = "long position status: wait to fill all position_exit"
-                print(msg)
+                self.add_log('warning',msg)
             elif len(get_open_orders()) > 0:
-                msg = "long positions status: waiting for unfilled orders to get through"
-                print(msg)
+                msg = "long positions status: waiting for unfilled closing positions"
+                self.add_log('warning',msg)
             return
             
         for k in self.order_queue_open:
             self.send_order_through(data, k, self.order_queue_open[k])
             
-            msg = "\n\t"+str(get_datetime().date()) + " - enter_positions() order target in $: " +str(k) +" positions: " +str(self.order_queue_open[k])
+            msg = "\n\t" + " - enter_positions() order target in $: " +str(k) +" positions: " +str(self.order_queue_open[k])
             self.add_log('info',msg)
             
             if self.get_dumpanalytics():

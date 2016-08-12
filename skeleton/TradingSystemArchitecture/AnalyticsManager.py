@@ -105,7 +105,7 @@ class AnalyticsManager (Analytics):
         ch.setFormatter(formatter)
         self.__logger.addHandler(ch)
         
-        msg = "logging activated in console"
+        msg = "logging mode: " +str(self.__logger.level) +" activated in console"
         self.add_log('info',msg)
         return True
         
@@ -156,17 +156,20 @@ class AnalyticsManager (Analytics):
     def add_log(self, logtype, msg):
         if not self.get_log():
             return
+        
+        # get_datetime is UTC by default so set it to NYC exchange for Quantopian
+        timestamped_msg = "backtest time: " +str(get_datetime('US/Eastern')) + msg
 
         if logtype == 'critical':
-            self.__logger.critical(msg)        
+            self.__logger.critical(timestamped_msg)        
         elif logtype == 'error':
-            self.__logger.error(msg)
+            self.__logger.error(timestamped_msg)
         elif logtype == 'warning':
-            self.__logger.warning(msg)
+            self.__logger.warning(timestamped_msg)
         elif logtype == 'info':
-            self.__logger.info(msg)
+            self.__logger.info(timestamped_msg)
         elif logtype == 'debug':
-            self.__logger.debug(msg)
+            self.__logger.debug(timestamped_msg)
         return
         
     def set_dumpanalytics (self, status):

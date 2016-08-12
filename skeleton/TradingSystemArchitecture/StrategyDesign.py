@@ -70,8 +70,9 @@ class StrategyDesign(object, AnalyticsManager):
         self.name = value
         return
         
-    def add_schedule_function(self, func):
-        self.schedule_func_list.append(func)
+    def add_schedule_function(self, func, date_rule, time_rule, half_days=True):
+        sched_param_dict = {'func':func, 'date_rule':date_rule, 'time_rule':time_rule, 'half_days':half_days}
+        self.schedule_func_list.append(sched_param_dict)
         return
         
     def get_schedule_function(self):
