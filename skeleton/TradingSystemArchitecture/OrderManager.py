@@ -12,7 +12,7 @@ class OrderManager(AnalyticsManager):
         # by default, the Portfolio logger is set to output to the console
         # at a level sufficient to report problems.
         AnalyticsManager.__init__(self, analytics_name=name)
-        self.set_log_option(logconsole=False, logfile=False, level=3)
+        self.set_log_option(logconsole=True, logfile=False, level=3)
         
         self.context = context
         self.instruments = dict()
@@ -22,6 +22,9 @@ class OrderManager(AnalyticsManager):
         self.order_queue_open = dict()
         self.order_queue_close = dict()
         
+        # store positions in $ value
+        self.unfilled_orders = dict()
+        
         '''
         Analytics Manager
         '''
@@ -30,14 +33,46 @@ class OrderManager(AnalyticsManager):
 
         return
 
-    def monitor_unfilled_orders (self, context, data):     
+    def init_dict (self, dic, inst, val=0):
+        dic = dict()
+        for k in self.instruments.values():
+                dic[k] = 0
+        return
+
+    def log_unfilled_orders (self, context, data):
+        # reset unfilled
+        self.init_dict(self.unfilled_orders, 0)
+        
         # retrieve all the open (unfilled) orders
         open_orders = get_open_orders()
         
         if open_orders:
-            msg = " unfilled orders before market close "
+            msg = "\nUnfilled:Store"
+            for _inst in open_orders:
+                inst = open_orders[_inst][0]
+                unfilled_positions = inst.amount-inst.filled
+                msg = msg + "\n["+str(_inst.symbol)+"] - target order: "+str(inst.amount)+" - filled pos: "+str(inst.filled)+ " - unfilled orders: " +str(unfilled_positions)
+                
+                # store position in $ value
+                self.unfilled_orders = combine_dicts(
+                {_inst: np.floor(inst.filled*data[_inst].price) },
+                self.unfilled_orders,op=operator.add)
+            
             self.add_log('warning',msg)
+        return
         
+    def restore_unfilled_orders (self, context, data):
+        
+        if len(self.unfilled_orders) > 0:
+            msg = "\nUnfilled:Restore"
+            for unfill in self.unfilled_orders:
+                msg = msg + "\n["+str(unfill.symbol)+"] - target order $$: "+str(self.unfilled_orders[unfill])
+                
+            self.add_log('warning',msg)            
+            self.add_orders(self.unfilled_orders)
+                
+            
+        self.init_dict(self.unfilled_orders, 0)
         return
     
     def add_instruments(self, values):
@@ -75,6 +110,8 @@ class OrderManager(AnalyticsManager):
         return
         
     def add_orders(self, input_dict):
+        # target_dollar_value: dictionary of positions target in dollar value
+        # dict{inst; dollarvalue}
         # loop through orders in dict and queue as close/open
         for mkt_order in input_dict:
             if input_dict[mkt_order] > 0:
@@ -125,10 +162,10 @@ class OrderManager(AnalyticsManager):
         if data_freq == 'minute' and (len(self.order_queue_open) <1 or len(self.order_queue_close)>1 or len(get_open_orders()) > 0):
             if len(self.order_queue_close)>1:
                 msg = "long position status: wait to fill all position_exit"
-                self.add_log('warning',msg)
+                self.add_log('info',msg)
             elif len(get_open_orders()) > 0:
                 msg = "long positions status: waiting for unfilled closing positions"
-                self.add_log('warning',msg)
+                self.add_log('info',msg)
             return
             
         for k in self.order_queue_open:
