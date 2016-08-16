@@ -92,7 +92,8 @@ class PortfolioManager(object, AnalyticsManager):
         # target_dollar_value: dictionary of positions target in dollar value
         # dict{inst; dollarvalue}
         #
-        self.order_manager.add_orders (target_dollar_value)
+
+        self.order_manager.orderbook_consolidator (target_dollar_value)
         return
         
     def handle_data (self, data):

@@ -12,7 +12,7 @@ class OrderManager(AnalyticsManager):
         # by default, the Portfolio logger is set to output to the console
         # at a level sufficient to report problems.
         AnalyticsManager.__init__(self, analytics_name=name)
-        self.set_log_option(logconsole=True, logfile=False, level=3)
+        self.set_log_option(logconsole=False, logfile=False, level=3)
         
         self.context = context
         self.instruments = dict()
@@ -21,6 +21,8 @@ class OrderManager(AnalyticsManager):
         # before opening any new orders if necessary
         self.order_queue_open = dict()
         self.order_queue_close = dict()
+        
+        self.orderbook = dict()
         
         # store positions in $ value
         self.unfilled_orders = dict()
@@ -33,15 +35,58 @@ class OrderManager(AnalyticsManager):
 
         return
 
-    def init_dict (self, dic, inst, val=0):
-        dic = dict()
-        for k in self.instruments.values():
-                dic[k] = 0
-        return
+#    def init_dict (self, val=0):
+##        dic = dict()
+##        for k in self.instruments.values():
+##                dic[k] = val
+##        return dic
+#        return dict()
+#
+#    def reset_orderbook (self, context, data):
+#        """
+#        reset all orderbook variables
+#        
+#        Args:
+#            None
+#            
+#        Kwarg:
+#                
+#        Returns:
+#            None
+#        """
+#        zero_positions = self.init_dict(val='')
+#        
+#        data_freq = get_environment(field='data_frequency')
+#        if data_freq == 'daily':
+#            if len(self.order_queue_close) == 0 and len(self.order_queue_open) == 0:
+#                self.orderbook = zero_positions
+#                self.order_queue_close = zero_positions
+#                self.order_queue_open = zero_positions
+#            
+#            return
+#        
+#        
+#        # required for daily mode as orders are filled the next day
+#        self.orderbook = zero_positions
+#        self.order_queue_close = zero_positions
+#        self.order_queue_open = zero_positions     
+#        return
 
-    def log_unfilled_orders (self, context, data):
+    def unfilled_store (self, context, data):
+        """
+        catch unfilled orders at end of day, and convert positions into $
+        value to update self.unfilled_orders
+        
+        Args:
+            None
+            
+        Kwarg:
+                
+        Returns:
+            None
+        """
         # reset unfilled
-        self.init_dict(self.unfilled_orders, 0)
+        self.unfilled_orders = dict()
         
         # retrieve all the open (unfilled) orders
         open_orders = get_open_orders()
@@ -57,23 +102,96 @@ class OrderManager(AnalyticsManager):
                 self.unfilled_orders = combine_dicts(
                 {_inst: np.floor(inst.filled*data[_inst].price) },
                 self.unfilled_orders,op=operator.add)
+                
+                
+            data_freq = get_environment(field='data_frequency')
+            if data_freq == 'daily': return
+                
+            '''
+            cancelling all open orders
+            https://www.quantopian.com/posts/how-do-you-cancel-all-open-orders-on-a-friday-afternoon
+            '''
+            for sec in open_orders:               # Each security object has a list  
+                for order in open_orders[sec]:     # Each order in the list  
+                    cancel_order(order.id)          # The order id  
             
             self.add_log('warning',msg)
         return
         
-    def restore_unfilled_orders (self, context, data):
+    def unfilled_restore (self, context, data):
+        """
+        update the orderbook with the unfilled orders from the previous day
         
+        Args:
+            None
+            
+        Kwarg:
+                
+        Returns:
+            None
+        """        
         if len(self.unfilled_orders) > 0:
             msg = "\nUnfilled:Restore"
             for unfill in self.unfilled_orders:
                 msg = msg + "\n["+str(unfill.symbol)+"] - target order $$: "+str(self.unfilled_orders[unfill])
                 
-            self.add_log('warning',msg)            
-            self.add_orders(self.unfilled_orders)
-                
+            self.add_log('warning',msg)
             
-        self.init_dict(self.unfilled_orders, 0)
+#            self.orderbook_consolidator(self.unfilled_orders)
+#                
+#            
+#        self.unfilled_orders = self.init_dict(val='')
+        self.unfilled_orders = dict()    
         return
+        
+    def orderbook_consolidator (self, dollar_dic):
+        """
+        agregate all orders in $ value for condolidated batch order submission
+        to update self.orderbook accordingly
+        
+        Args:
+            dictionary of form {symbol:$value}
+            
+        Kwarg:
+                
+        Returns:
+            None
+        """
+        for mkt_order in dollar_dic:
+            self.orderbook = combine_dicts({mkt_order:dollar_dic[mkt_order]},
+                                         self.orderbook,
+                                         op=operator.add)
+        return
+        
+    def orderbook_submit (self):
+        """
+        sort orders prior submission to exit positions and free cash first, 
+        and enter new positions ; update order_queue_open/close accordingly
+        
+        Args:
+            none (use self.orderbook)
+            
+        Kwarg:
+                
+        Returns:
+            True/False is there anything to be submitted
+        """
+        
+        # sort dict by values sorted(dict.items(), key=operator.itemgetter(1))
+        
+        if len (self.orderbook) == 0:
+#        if all(x == 0 for x in self.orderbook.itervalues()):
+            return False
+            
+        self.order_queue_close = {k: v for k, v in self.orderbook.items() if v<0}
+        self.order_queue_open = {k: v for k, v in self.orderbook.items() if v>0}
+
+#        zero_positions = self.init_dict(val='')
+#        self.orderbook = zero_positions
+
+        self.orderbook = dict()
+            
+        return True
     
     def add_instruments(self, values):
         self.instruments = combine_dicts(self.instruments,
@@ -124,7 +242,7 @@ class OrderManager(AnalyticsManager):
                                          op=operator.add)                    
     
     def exit_positions (self, data):
-        if len(self.order_queue_close)<1:
+        if len(self.order_queue_close) == 0:
             return
             
         for k in self.order_queue_close:
@@ -157,9 +275,13 @@ class OrderManager(AnalyticsManager):
             Consequently:
             >> daily mode: should allow every orders at once as all orders will be submitted at same time (EOD closing)
             >> minute mode: first close orders (sell long and close shorts), then move to buy more of current positions
-        ''' 
+        '''
+        
+        if len(self.order_queue_open) == 0:
+            return
+            
         data_freq = get_environment(field='data_frequency')
-        if data_freq == 'minute' and (len(self.order_queue_open) <1 or len(self.order_queue_close)>1 or len(get_open_orders()) > 0):
+        if data_freq == 'minute' and (len(self.order_queue_open) <1 or len(self.order_queue_close)>1):
             if len(self.order_queue_close)>1:
                 msg = "long position status: wait to fill all position_exit"
                 self.add_log('info',msg)
@@ -192,15 +314,18 @@ class OrderManager(AnalyticsManager):
         will get filled at 10:01AM that same Monday, where there is much less 
         movement in the price. 
         '''
-        self.exit_positions(data)
-        self.enter_positions(data)
         
-        if self.get_dumpanalytics():
-            # loop through all current holdings
-            for inst in self.context.portfolio.positions:
-                # columns=['timestamp', 'symbol', 'size']
-                row = [get_datetime().date(), inst, self.context.portfolio.positions[inst].amount]
-                self.insert_analyticsdata('position_size_tracking',row)  
+        if self.orderbook_submit():
+            self.exit_positions(data)
+            self.enter_positions(data)
+            
+            if self.get_dumpanalytics():
+                # loop through all current holdings
+                for inst in self.context.portfolio.positions:
+                    # columns=['timestamp', 'symbol', 'size']
+                    row = [get_datetime().date(), inst, self.context.portfolio.positions[inst].amount]
+                    self.insert_analyticsdata('position_size_tracking',row)  
+            return
         return
 
     def update_current_positions(self, data):

@@ -127,7 +127,7 @@ do
 		echo -e " \n\n #### File: $quantopian_file ###"  >>  $output_file
 		# remove the first line of each file (containing the import)
 		# >> append to current file
-		tail -n +2 $quantopian_file >> $output_file
+		tail -n +2 "$quantopian_file" >> $output_file
 		# >> append to current file
 		echo -e " \n\n #### Next File ###"  >>  $output_file
 	else
@@ -156,7 +156,7 @@ for generic_function in $(find -H "$dir_architecture" -type f -name '*.py' | sor
             printf "adding $generic_function\n"
             echo -e " \n\n #### File: $generic_function ###"  >>  $output_file
             # find all lines that start with    from    and delete them, leaving everything else.
-            sed '/^from/ d' $generic_function >> $output_file
+            sed '/^from/ d' "$generic_function" >> $output_file
             echo -e " \n\n #### Next File ###"  >>  $output_file
         fi
     else
@@ -174,9 +174,10 @@ do
 		then
 			echo -e " \n\n #### File: $main_file ###"  >>  $output_file
 			# remove the first line of each file (containing the import)
-			content=$(tail -n +2 $main_file)
+			content="$(tail -n +2 $main_file)"
             content="${content//context.schedule/schedule}"
-            echo -e "$content" >> $output_file
+            # printf allows maintaining \n as-in in the file (in log comments)
+            printf "%s" "$content" >> $output_file
 			echo -e " \n\n #### Next File ###"  >>  $output_file
 			
 		elif ( echo -e $main_file | egrep -i "main")
@@ -184,7 +185,7 @@ do
 			echo -e " \n\n #### File: $main_file ###"  >>  $output_file 
 			# remove zipline specifics
 			quantopian=$(sed '/performance_analysis.update_ds/d' $main_file | tail -n +2)
-			echo -e "$quantopian" >> $output_file
+			printf "%s" "$quantopian" >> $output_file
 			echo -e " \n\n #### Next File ###"  >>  $output_file
 			
 		# auto-generation of the quantopian specific context from the zipline one (remove 'context.' )
@@ -200,7 +201,7 @@ do
 				# context.set_ -> set_
 			common="${common//context.schedule/schedule}"
 			common="${common//context.set_/set_}"
-			echo -e "$common" >> $output_file
+			printf "%s" "$common" >> $output_file
 			# include the output in the quantopian script
 			echo -e " \n\n #### Next File ###"  >>  $output_file
 		fi
@@ -229,7 +230,7 @@ while IFS= read -r; do
 					printf "adding $generic_function\n"
 					echo -e " \n\n #### File: $generic_function ###"  >>  $output_file
 					# find all lines that start with    from    and delete them, leaving everything else.
-					sed '/^from/ d' $generic_function >> $output_file
+					sed '/^from/ d' "$generic_function" >> $output_file
 					echo -e " \n\n #### Next File ###"  >>  $output_file
 				fi
 			else
