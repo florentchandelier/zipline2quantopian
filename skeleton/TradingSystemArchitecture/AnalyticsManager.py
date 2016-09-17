@@ -81,7 +81,7 @@ class AnalyticsManager (Analytics):
         elif level == 5:
             return log.ERROR
         elif level == 4:
-            return log.WARNING
+            return log.ERROR
         elif level == 3:
             return log.WARNING
         elif level == 2:

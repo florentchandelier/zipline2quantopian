@@ -21,9 +21,10 @@ def plot_portfolio (results, algo, algo_name=None, bench_plot=True, bench_name=N
     fig.tight_layout()
 #    pl.show()
     
-    br = trading.environment.benchmark_returns
-    bm_returns = br[(br.index >= algo.startDate) & (br.index <= algo.endDate)]
-    results['benchmark_returns'] = (1 + bm_returns).cumprod().values
+    br = results.benchmark_period_return
+    bm_returns = br[(br.index >= algo.startDate) & (br.index <= algo.endDate + timedelta(days=1))]
+#    results['benchmark_returns'] = (1 + bm_returns).cumprod().values
+    results['benchmark_returns'] = (1 + bm_returns)
     results['algorithm_returns'] = (1 + results.returns).cumprod()
     
     fig = plt.figure(2, figsize=(8, 10))
@@ -37,7 +38,7 @@ def plot_portfolio (results, algo, algo_name=None, bench_plot=True, bench_name=N
     format_plot(ax1)
     
     ax2 = fig.add_subplot(312, ylabel='Drawdowns')
-    results['drawdowns'] = -100*algo.perf_tracker.cumulative_risk_metrics.drawdowns.values
+    results['drawdowns'] = -100*algo.perf_tracker.cumulative_risk_metrics.drawdowns
     add_serie (ax2, results['drawdowns'], algo_name)   
     format_plot(ax2, leg_location='lower left')
     

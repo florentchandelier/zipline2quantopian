@@ -29,26 +29,27 @@ class PortfolioManager(object, AnalyticsManager):
         self.instruments = dict()
         self.strategies = list()
         
-        self.order_manager = OrderManager(context, name = "OrderManager")
+        # make the order_manager object persistent
+        self.context.order_manager = OrderManager(context, name = "OrderManager")
         
         return
         
-    def add_strategy(self, value, allocation):
+    def add_strategy(self, strategy, allocation):
         if (self.portf_allocation + allocation > 1):
             msg = '\n\t Strategy named**'+str(value.name) +' ** cannot be added to portfolio. Total allocation exceeds 100%'
             self.add_log('error',msg)
             return
             
-        if value.name in self.list_strategies:
-            msg = '\n\t Strategy named ' +str(value.name) +' already exists and cannot be added to portfolio'
+        if strategy.name in self.list_strategies:
+            msg = '\n\t Strategy named ' +str(strategy.name) +' already exists and cannot be added to portfolio'
             self.add_log('error',msg)
             return
             
-        value.portfolio.set_allocation(allocation)
+        strategy.portfolio.set_allocation(allocation)
         self.portf_allocation += allocation
         
-        self.list_strategies.append(value.name)
-        self.strategies.append(value)
+        self.list_strategies.append(strategy.name)
+        self.strategies.append(strategy)
         
         # Registrating with third-party methods
         #
@@ -59,8 +60,8 @@ class PortfolioManager(object, AnalyticsManager):
         #
         # End of registration
         
-        self.set_instruments(value.get_instruments())
-        self.order_manager.add_instruments(value.get_instruments())
+        self.set_instruments(strategy.get_instruments())
+        self.context.order_manager.add_instruments(strategy.get_instruments())
         
         return
         
@@ -68,6 +69,7 @@ class PortfolioManager(object, AnalyticsManager):
         return self.portf_allocation
             
     def get_total_portfolio_value (self):
+        # Float: Sum value of all open positions and ending cash balance. 
         return self.context.portfolio.portfolio_value
         
     def set_instruments(self, value):
@@ -84,18 +86,7 @@ class PortfolioManager(object, AnalyticsManager):
             if strat.get_dumpanalytics():
                 strat.write_analytics_tocsv(output_directory=savepath)
                 
-        if self.order_manager.get_dumpanalytics():
-            self.order_manager.write_analytics_tocsv(output_directory=savepath)
-            
-    def sendorder_to_ordermanager (self, target_dollar_value):
-        #
-        # target_dollar_value: dictionary of positions target in dollar value
-        # dict{inst; dollarvalue}
-        #
-
-        self.order_manager.orderbook_consolidator (target_dollar_value)
-        return
+        if self.context.order_manager.get_dumpanalytics():
+            self.context.order_manager.write_analytics_tocsv(output_directory=savepath)
         
-    def handle_data (self, data):
-        self.order_manager.update(data)
-        return
+        return            

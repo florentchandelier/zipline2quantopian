@@ -63,7 +63,13 @@ class StrategyDesign(object, AnalyticsManager):
             tgt_dollar_value = self.portfolio.assets[inst] - current_value
             target_dollar_value = merge_dicts(target_dollar_value, {inst:tgt_dollar_value})
             
-        self.context.portfolio_manager.sendorder_to_ordermanager (target_dollar_value)
+#            print("SD - inst: " + str(inst.symbol) + " desired %: " + str(pct[inst]) + " desired $: " +str(dollar_value) + " current $: " + str(current_value) + " target $: " + str(tgt_dollar_value))
+        
+        #
+        # target_dollar_value: dictionary of positions target in dollar value
+        # dict{inst; dollarvalue}
+        #
+        self.context.order_manager.orderbook_consolidator (target_dollar_value)
         return
         
     def set_name(self, value):

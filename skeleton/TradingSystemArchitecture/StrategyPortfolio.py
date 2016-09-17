@@ -21,7 +21,8 @@ class StrategyPortfolio (object):
     def get_allocation (self, allocation_type=None):
         if allocation_type == 'pct':
             return self.allocation
-        if allocation_type == 'dollar':            
+        if allocation_type == 'dollar': 
+#            print("StrategyPortfolio: get_total_portfolio_value = " +str(self.portfolio_manager.get_total_portfolio_value()))
             return self.allocation * self.portfolio_manager.get_total_portfolio_value()
         
 #    def update_asset (self, inst, amount):

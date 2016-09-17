@@ -6,13 +6,13 @@ To Dos:
     able to exit the specific position of a specific strategy
 '''
 
-class OrderManager(AnalyticsManager):
+class OrderManager(object, AnalyticsManager):
     def __init__ (self, context, name = "OrderManager"):
         
         # by default, the Portfolio logger is set to output to the console
         # at a level sufficient to report problems.
         AnalyticsManager.__init__(self, analytics_name=name)
-        self.set_log_option(logconsole=False, logfile=False, level=3)
+        self.set_log_option(logconsole=True, logfile=False, level=4)
         
         self.context = context
         self.instruments = dict()
@@ -35,43 +35,6 @@ class OrderManager(AnalyticsManager):
 
         return
 
-#    def init_dict (self, val=0):
-##        dic = dict()
-##        for k in self.instruments.values():
-##                dic[k] = val
-##        return dic
-#        return dict()
-#
-#    def reset_orderbook (self, context, data):
-#        """
-#        reset all orderbook variables
-#        
-#        Args:
-#            None
-#            
-#        Kwarg:
-#                
-#        Returns:
-#            None
-#        """
-#        zero_positions = self.init_dict(val='')
-#        
-#        data_freq = get_environment(field='data_frequency')
-#        if data_freq == 'daily':
-#            if len(self.order_queue_close) == 0 and len(self.order_queue_open) == 0:
-#                self.orderbook = zero_positions
-#                self.order_queue_close = zero_positions
-#                self.order_queue_open = zero_positions
-#            
-#            return
-#        
-#        
-#        # required for daily mode as orders are filled the next day
-#        self.orderbook = zero_positions
-#        self.order_queue_close = zero_positions
-#        self.order_queue_open = zero_positions     
-#        return
-
     def unfilled_store (self, context, data):
         """
         catch unfilled orders at end of day, and convert positions into $
@@ -85,6 +48,9 @@ class OrderManager(AnalyticsManager):
         Returns:
             None
         """
+        data_freq = get_environment(field='data_frequency')
+        if data_freq == 'daily': return
+                
         # reset unfilled
         self.unfilled_orders = dict()
         
@@ -99,13 +65,14 @@ class OrderManager(AnalyticsManager):
                 msg = msg + "\n["+str(_inst.symbol)+"] - target order: "+str(inst.amount)+" - filled pos: "+str(inst.filled)+ " - unfilled orders: " +str(unfilled_positions)
                 
                 # store position in $ value
-                self.unfilled_orders = combine_dicts(
-                {_inst: np.floor(inst.filled*data[_inst].price) },
-                self.unfilled_orders,op=operator.add)
-                
-                
-            data_freq = get_environment(field='data_frequency')
-            if data_freq == 'daily': return
+                if inst.limit is None:
+                    self.unfilled_orders = combine_dicts(
+                    {_inst: np.floor(unfilled_positions*data.current(inst.sid,'price')) },
+                    self.unfilled_orders,op=operator.add)
+                else:                       
+                    self.unfilled_orders = combine_dicts(
+                    {_inst: np.floor(unfilled_positions*inst.limit) },
+                    self.unfilled_orders,op=operator.add)
                 
             '''
             cancelling all open orders
@@ -129,18 +96,16 @@ class OrderManager(AnalyticsManager):
                 
         Returns:
             None
-        """        
+        """
+        
         if len(self.unfilled_orders) > 0:
             msg = "\nUnfilled:Restore"
             for unfill in self.unfilled_orders:
                 msg = msg + "\n["+str(unfill.symbol)+"] - target order $$: "+str(self.unfilled_orders[unfill])
                 
-            self.add_log('warning',msg)
+            self.add_log('warning',msg)            
+            self.orderbook_consolidator(self.unfilled_orders)
             
-#            self.orderbook_consolidator(self.unfilled_orders)
-#                
-#            
-#        self.unfilled_orders = self.init_dict(val='')
         self.unfilled_orders = dict()    
         return
         
@@ -176,18 +141,16 @@ class OrderManager(AnalyticsManager):
         Returns:
             True/False is there anything to be submitted
         """
-        
-        # sort dict by values sorted(dict.items(), key=operator.itemgetter(1))
-        
+                
         if len (self.orderbook) == 0:
-#        if all(x == 0 for x in self.orderbook.itervalues()):
             return False
             
-        self.order_queue_close = {k: v for k, v in self.orderbook.items() if v<0}
-        self.order_queue_open = {k: v for k, v in self.orderbook.items() if v>0}
-
-#        zero_positions = self.init_dict(val='')
-#        self.orderbook = zero_positions
+        self.order_queue_close = combine_dicts( {k: v for k, v in self.orderbook.items() if v<0},
+                                                 self.order_queue_close,
+                                                 op=operator.add)
+        self.order_queue_open = combine_dicts( {k: v for k, v in self.orderbook.items() if v>0},
+                                                self.order_queue_open,
+                                                op=operator.add)
 
         self.orderbook = dict()
             
@@ -199,14 +162,26 @@ class OrderManager(AnalyticsManager):
                                          op=operator.add)
         return
     
-    def send_order_through(self, data, instrument, dollar_value=0, style=MarketOrder()):
+    def send_order_through(self, data, instrument, dollar_value=0, order_style='limit'):
         '''
         MarketOrder()
         LimitOrder()
         '''
-#        nb_shares = int(np.floor(dollar_value /float(data[instrument].price) ))
+        
+        # zipline
+        data_freq = get_environment(field='data_frequency')
+        if data_freq == 'daily': order_style = 'market'
+        # endof zipline        
+        
         nb_shares = int(np.floor(dollar_value /float(data.current(instrument,'price')) ))
-        order(instrument, nb_shares, style=style)
+        
+#        print("OM -  inst: " + str(instrument.symbol) + " $: " +str(dollar_value))
+#        print ( str(get_datetime()) + " Order: inst = " +str(instrument.symbol) +" size = " +str(nb_shares) + " Price = " + str(data.current(instrument, 'price')))        
+
+        if order_style is 'limit':
+            order(instrument, nb_shares, style=LimitOrder(data.current(instrument, 'price')) )
+        elif order_style is 'market':
+            order(instrument, nb_shares)
         return
         
     def add_percent_orders(self, data, input_dict):
@@ -246,7 +221,7 @@ class OrderManager(AnalyticsManager):
             return
             
         for k in self.order_queue_close:
-            self.send_order_through(data, k, self.order_queue_close[k])
+            self.send_order_through(data, k, self.order_queue_close[k], 'limit')
             
             msg = "\n\t" + " - exit_positions() order target in $: " +str(k) +" positions: " +str(self.order_queue_close[k])
             self.add_log('info',msg)
@@ -280,6 +255,8 @@ class OrderManager(AnalyticsManager):
         if len(self.order_queue_open) == 0:
             return
             
+#        print("OrderManager: get_total_portfolio_value = " +str(self.context.portfolio.portfolio_value))
+            
         data_freq = get_environment(field='data_frequency')
         if data_freq == 'minute' and (len(self.order_queue_open) <1 or len(self.order_queue_close)>1):
             if len(self.order_queue_close)>1:
@@ -289,22 +266,34 @@ class OrderManager(AnalyticsManager):
                 msg = "long positions status: waiting for unfilled closing positions"
                 self.add_log('info',msg)
             return
-            
-        for k in self.order_queue_open:
-            self.send_order_through(data, k, self.order_queue_open[k])
-            
-            msg = "\n\t" + " - enter_positions() order target in $: " +str(k) +" positions: " +str(self.order_queue_open[k])
-            self.add_log('info',msg)
-            
-            if self.get_dumpanalytics():
-                # columns=['timestamp', 'symbol', 'exit', 'enter']
-                row = [get_datetime().date(), k, '-', self.order_queue_open[k]]
-                self.insert_analyticsdata('pct_assets',row) 
-                
-        self.order_queue_open = dict()
-        return
         
-    def update (self, data):
+        # mitigating for unfilled orders freeing cash
+        wait_cashavailable = False
+        
+        for k in self.order_queue_open:
+            # if not enough cash available, add the order to the order_book for next execution
+            if self.order_queue_open[k] > self.context.portfolio.cash:
+                wait_cashavailable = True
+                msg = " Not enough cash to enter position. Wait for open orders to fill. [" + str(k.symbol) +"@ $"+str(self.order_queue_open[k])+"]"
+                self.add_log('warning',msg)
+                
+            if wait_cashavailable:
+                self.orderbook_consolidator ({k:self.order_queue_open[k]})
+            else:
+                self.send_order_through(data, k, self.order_queue_open[k], 'limit')    
+                
+                msg = "\n\t" + " - enter_positions() order target in $: " +str(k) +" positions: " +str(self.order_queue_open[k])
+                self.add_log('info',msg)
+                
+                if self.get_dumpanalytics():
+                    # columns=['timestamp', 'symbol', 'exit', 'enter']
+                    row = [get_datetime().date(), k, '-', self.order_queue_open[k]]
+                    self.insert_analyticsdata('pct_assets',row)
+                    
+        self.order_queue_open = dict()
+        return                
+        
+    def update (self, context, data):
         '''
         NOTE
         In backtests, orders are submitted in one bar, and are filled in the 
@@ -331,7 +320,7 @@ class OrderManager(AnalyticsManager):
     def update_current_positions(self, data):
         self.current_positions = dict()
         for k in self.instruments.values():
-                self.current_positions[k] = (data[k].price*self.context.portfolio.positions[k].amount) / self.context.portfolio.portfolio_value
+                self.current_positions[k] = (data.current(k, 'price')*self.context.portfolio.positions[k].amount) / self.context.portfolio.portfolio_value
         return
         
 #    def get_number_shares(self, data, percent_dict):

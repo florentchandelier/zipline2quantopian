@@ -7,7 +7,7 @@ def check_cash_status(context, data):
     
     if context.portfolio.cash < 0:
         if context.env == 'quantopian':
-            log.info("Negative Cash Balance = %4.2f" % (context.portfolio.cash) )
+            log.error("Negative Cash Balance = %4.2f" % (context.portfolio.cash) )
         else:
             print("Negative Cash Balance = %4.2f" % (context.portfolio.cash))
     return
@@ -29,6 +29,6 @@ def get_cagr(context, data):
         
         cagr = np.power(current_value/initial_value, 1/float(context.cagr_period/12) )-1
         
-#        print( '['+str(data.items()[0][1].datetime.year) +'-'+str(data.items()[0][1].datetime.month)+'] > CAGR = ' +str(cagr))
         print( '['+str(get_datetime().date().year) +'-'+str(get_datetime().date().month)+'] > CAGR = ' +str(cagr))
     return
+
