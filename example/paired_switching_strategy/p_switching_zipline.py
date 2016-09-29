@@ -49,7 +49,7 @@ if __name__ == '__main__':
     is_profiling = False
     profiling_output = False
     
-    fast_backtest = True
+    fast_backtest = False
 #    algo = TradingAlgorithm(initialize=initialize, handle_data=handle_data, capital_base = 10000, fast_backtest=fast_backtest)
     algo = TradingAlgorithm(initialize=initialize, handle_data=handle_data)
      

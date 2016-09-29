@@ -1,13 +1,16 @@
 from necessary_import import *
 
-def plot_portfolio (results, algo, algo_name=None, bench_plot=True, bench_name=None):
+def plot_portfolio (results, algo, algo_name=None, bench_plot=True, bench_name=None, algo_color=None):
     
     fig = plt.figure(1, figsize=(8, 10))
     plt.subplots_adjust(left=0.2, right=0.98, bottom=0, top=0.96)
     #fig, axes = plt.subplots(nrows=4, ncols=4)    
 
     ax1 = fig.add_subplot(311, ylabel='portfolio value ($)')
-    add_serie (ax1, results.portfolio_value, algo_name)   
+    if algo_color is None:
+        add_serie (ax1, results.portfolio_value, algo_name) 
+    else:
+        add_serie (ax1, results.portfolio_value, algo_name, color=algo_color)
     format_plot(ax1)
     
     ax2 = fig.add_subplot(312, ylabel='leverage')
@@ -34,7 +37,11 @@ def plot_portfolio (results, algo, algo_name=None, bench_plot=True, bench_name=N
     ax1 = fig.add_subplot(311, ylabel='Cumulative Returns')
     if bench_plot:
         add_serie (ax1, results['benchmark_returns'], bench_name, color='black')
-    add_serie (ax1, results['algorithm_returns'], algo_name)   
+    
+    if algo_color is None:
+        add_serie (ax1, results['algorithm_returns'], algo_name)
+    else:
+        add_serie (ax1, results['algorithm_returns'], algo_name, color=algo_color)
     format_plot(ax1)
     
     ax2 = fig.add_subplot(312, ylabel='Drawdowns')
@@ -58,14 +65,16 @@ def add_serie(ax, s, serie_name=None, style=None, color=None, alpha=0.5):
 #    if style is not None:
 #        st=style
         
-    nm = 'no name'
-    if serie_name is not None:
-        nm = serie_name
-        
     if color is not None:
-        s.plot(ax=ax, label=nm, color=color, sharex=True, alpha=alpha)
+        if serie_name is None:
+            s.plot(ax=ax, color=color, sharex=True, alpha=alpha)
+        else:
+            s.plot(ax=ax, label=serie_name, color=color, sharex=True, alpha=alpha)
     else:
-        s.plot(ax=ax, label=nm, sharex=True, alpha=alpha)
+        if serie_name is None:
+            s.plot(ax=ax, sharex=True, alpha=alpha)
+        else:
+            s.plot(ax=ax, label=serie_name, sharex=True, alpha=alpha)
     
 def format_plot(ax, leg_location=None):
     loc='upper left'

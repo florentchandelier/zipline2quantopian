@@ -56,10 +56,9 @@ class pswitching(StrategyDesign):
         if instruments is None:        
             self.instruments = {'equity':symbol('SPY'), 'treasury':symbol('TLT')}
        
-        self.add_schedule_function( context.schedule_function(self.order_logic,
+        self.add_schedule_function( self.order_logic,
                       date_rule=date_rules.month_start(),
                       time_rule=time_rules.market_open(hours=1, minutes=0))
-        )
 
         '''
         Analytics Manager

@@ -56,11 +56,15 @@ class StrategyDesign(object, AnalyticsManager):
             # inherently takes into account strategy allocation in portfolio
             dollar_value = pct[inst] *allocated_value
             # update desired strategy targeted allocation
-            self.portfolio.assets[inst] = dollar_value
+#            self.portfolio.assets[inst] = dollar_value
+            self.portfolio.update_asset(inst.symbol, dollar_value)
             
 #            current_value = self.context.portfolio.positions[inst].amount *data[inst].price
+            msg = " StrategyDesign: Price consolidation should not happen inside Strategy, but Global OderManager level"
+            self.add_log('warning',msg)
+            
             current_value = self.context.portfolio.positions[inst].amount *data.current(inst, 'price')
-            tgt_dollar_value = self.portfolio.assets[inst] - current_value
+            tgt_dollar_value = dollar_value - current_value
             target_dollar_value = merge_dicts(target_dollar_value, {inst:tgt_dollar_value})
             
 #            print("SD - inst: " + str(inst.symbol) + " desired %: " + str(pct[inst]) + " desired $: " +str(dollar_value) + " current $: " + str(current_value) + " target $: " + str(tgt_dollar_value))
