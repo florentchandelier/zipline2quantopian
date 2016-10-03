@@ -43,13 +43,47 @@ the Sharpe ratio (return to risk) ratio of a simple SPY investment.
 [2004-2011] CAGR=14.8%
 
 '''
-            
+    
+class parameters_robustness():
+    def __init__(self):
+        # http://stackoverflow.com/questions/24594313/permutations-of-list-of-lists
+        self.permutation = list(itertools.product( *self.get_all_permutation() ))
+        return
+    
+    def get_lookback(self):
+        tradableday_in_month = 21
+        month_in_year = 12
+        param = range(tradableday_in_month,month_in_year*tradableday_in_month, tradableday_in_month)
+        return param
+        
+    def get_rebalance_day(self):
+        param = range(0,21)
+        return param
+        
+    def get_all_permutation(self):
+        lookback = self.get_lookback()
+        rebalance_day = self.get_rebalance_day()
+        return [lookback, rebalance_day]
+        
+
 class pswitching(StrategyDesign):
-    def __init__(self, context, name = 'pair switching strategy', instruments=None):
+    def __init__(self, context, name = 'pair switching strategy', parameters = None, instruments=None):
         StrategyDesign.__init__(self, context, name)
 
         self.nbSwitch = 0
+        
+        #
+        # parameters to test during robust parameters evaluation        
+        #        
         self.lookback = 3*21 # 4 months period, 21 trading days per month
+        self.rebalanceday = 0
+        if parameters is not None:
+            self.lookback = parameters[0]
+            self.rebalanceday = parameters[1]
+        #
+        # end of parameters evaluation
+        # 
+            
         self.Periodicity = 1 # every x period ; 1 means every period
         self.periodCount = 0
 
@@ -57,7 +91,7 @@ class pswitching(StrategyDesign):
             self.instruments = {'equity':symbol('SPY'), 'treasury':symbol('TLT')}
        
         self.add_schedule_function( self.order_logic,
-                      date_rule=date_rules.month_start(),
+                      date_rule=date_rules.month_start(self.rebalanceday),
                       time_rule=time_rules.market_open(hours=1, minutes=0))
 
         '''

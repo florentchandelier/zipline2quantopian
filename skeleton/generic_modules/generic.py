@@ -38,6 +38,11 @@ def get_weight_list(nb_list, start, finish, increment, precision=2):
         lists.append(lw)
     return lists
 
+#def permutation (lists):   
+##    permut = [','.join(str(y) for y in x) for x in itertools.product(*lists)]
+#    permut = list(itertools.product(*lists))
+#    return
+    
 def get_permutation(wl, op=operator.eq, condition_value=1, topn = 0):
     '''
     s: a list of weight

@@ -89,3 +89,19 @@ def format_plot(ax, leg_location=None):
     for label in legend.get_lines():
         label.set_linewidth(.5)  # the legend line width
     
+def heat_map(df):
+    """
+    https://www.quantopian.com/posts/finding-the-best-moving-averages-now-with-2012-testing-period
+    This creates our heatmap using our sharpe ratio dataframe
+    """
+    fig = matplotlib.pyplot.figure()
+    ax = fig.add_subplot(111)
+    axim = ax.imshow(df.values,cmap = matplotlib.pyplot.get_cmap('RdYlGn'), interpolation = 'nearest')
+    ax.set_xlabel(df.columns.name)
+    ax.set_xticks(np.arange(len(df.columns)))
+    ax.set_xticklabels(list(df.columns))
+    ax.set_ylabel(df.index.name)
+    ax.set_yticks(np.arange(len(df.index)))
+    ax.set_yticklabels(list(df.index))
+    ax.set_title("Sharpe Ratios")
+    matplotlib.pyplot.colorbar(axim)

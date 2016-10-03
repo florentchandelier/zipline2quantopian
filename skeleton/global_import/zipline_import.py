@@ -27,6 +27,7 @@ from zipline.utils import *
 #from zipline.version import *
 
 import pylab as pl
+from matplotlib import pyplot
 import matplotlib.pyplot as plt
 import matplotlib.dates as dates
 

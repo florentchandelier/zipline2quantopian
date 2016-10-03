@@ -1,3 +1,5 @@
+from collections import defaultdict
+import matplotlib.pylab as pl
 
 from global_import.zipline_import import *
 from p_switching.main import *
@@ -19,94 +21,76 @@ TLT
  --- algo.run completed in 6.11192798615 seconds ---
 '''
 
-import cProfile
-import pstats
-import StringIO
-
-import time
-
-def do_cprofile(func):
-    def profiled_func(*args, **kwargs):
-        profile = cProfile.Profile()
-        try:
-            profile.enable()
-            result = func(*args, **kwargs)
-            profile.disable()
-            return result
-        finally:
-            profile.print_stats()
-    return profiled_func
-    
-@do_cprofile
-def run_the_algo(algo, data):
-	return algo.run(data)
-
-def cp_run(fn_pro):
-    return cProfile.run('run_the_algo(algo,data)', fn_pro)
-	
-if __name__ == '__main__':
-    
-    is_profiling = False
-    profiling_output = False
-    
-    fast_backtest = False
-#    algo = TradingAlgorithm(initialize=initialize, handle_data=handle_data, capital_base = 10000, fast_backtest=fast_backtest)
-    algo = TradingAlgorithm(initialize=initialize, handle_data=handle_data)
-     
-#    instrument = [''.join(w) for w in algo.instrument.values()]
-    start = datetime(2004, 1, 1, 0, 0, 0, 0, pytz.utc)
-    end = datetime(2015, 1, 1, 0, 0, 0, 0, pytz.utc)
-    
-    instrument = ['SPY', 'TLT']
-#    data = load_from_yahoo(stocks=instrument, indexes={},start=algo.startDate, end=algo.endDate)
-    data = load_from_yahoo(stocks=instrument, indexes={},start=start, end=end)
-    data = data.dropna()
-    #
-    # End Of Fetch and Load
-    #
-    results = None
-    
-    '''
-    logging analytics
-    '''
-#    log_level = 2 # 2-INFO; 3=WARNING .... check AnalyticsManager module
-#    algo.portfolio_manager.order_manager.set_dumpanalytics(False)
-#    algo.portfolio_manager.order_manager.set_log_option(logconsole=False, logfile=False, level=log_level)    
-#
-#    idx = algo.portfolio_manager.list_strategies.index('pair switching strategy 1')
-#    algo.portfolio_manager.strategies[idx].set_dumpanalytics(False)
-#    algo.portfolio_manager.strategies[idx].set_log_option(logconsole=False, logfile=False, level=log_level) 
-    
-    if profiling_output:
-        fn_pro = 'statsfile_original'
-        cp_run(fn_pro)
-        stream = StringIO.StringIO()
-        stats = pstats.Stats(fn_pro, stream=stream)
-        stats.print_stats()  
-        print stream.getvalue()
-        
-    elif is_profiling:    
-        results = run_the_algo(algo, data)
-    else:
+def visu_robust_param (all_sharpes):
+    test = parameters_robustness()
+    for param in test.permutation:
+        algo = TradingAlgorithm(initialize=initialize_optimizeparameters, handle_data=handle_data, capital_base=10000, parameters=param)
         start_time = time.time()
         results = algo.run(data)
+        algo.performance_analysis.get_ds().plot(color='darkgrey', alpha=0.6)
+        
+        # Calculate the sharpe for this backtest
+        sharpe = (results.returns.mean()*282)/(results.returns.std() * np.sqrt(282))
+        all_sharpes[param] = sharpe
+        
+    return all_sharpes
+    
+def backtest (fast_backtest, color='darkgrey', bechmark = False):
+    algo = TradingAlgorithm(initialize=initialize, handle_data=handle_data, capital_base=10000)
+    start_time = time.time()
+    results = algo.run(data)
+    
+    if  fast_backtest:
         print(" --- algo.run completed in %s seconds ---" % (time.time() - start_time)) 
         algo.performance_analysis.render_get_gain_to_pain()        
-        algo.performance_analysis.render_from_trough_to_depth_trough(-5)
-        algo.performance_analysis.get_ds().plot()
-
-    if not fast_backtest and results is not None:    
+#        algo.performance_analysis.render_from_trough_to_depth_trough(-5)
+        algo.performance_analysis.get_ds().plot(color=color)
+    else:    
         plot_portfolio(results, algo)
-        
         print("\n RISK METRICS \n")
         print(algo.perf_tracker.cumulative_risk_metrics)
         dd = from_trough_to_depth_trough(results, -7)
     
-    elif results is not None:
-        print('Not Implemented')
+    if bechmark:
+        ( algo.capital_base*(1+results.benchmark_period_return) ).plot(color='black')    
+    return
+    
+def get_data(start, end, instrument):
+    #    data = load_from_yahoo(stocks=instrument, indexes={},start=algo.startDate, end=algo.endDate)
+    data = load_from_yahoo(stocks=instrument, indexes={},start=start, end=end)
+    data = data.dropna()
+    return data
+
+if __name__ == '__main__':
+    
+    fast_backtest = True
+    robust_param = True
+    bechmark = True   
+    #: Create a dictionary to hold all the results of our algorithm run
+    all_sharpes = defaultdict(dict)
+         
+    start = datetime(2004, 1, 1, 0, 0, 0, 0, pytz.utc)
+    end = datetime(2015, 1, 1, 0, 0, 0, 0, pytz.utc)
+    instrument = ['SPY', 'TLT']
+    data = get_data(start, end, instrument)
+
+    algo = None
+    if robust_param:
+       visu_robust_param (all_sharpes)
+       # last run with the 'final' parameters, overlayed on all param
+       backtest (fast_backtest=True, color='orangered', bechmark = True)
+    else:
+       algo.backtest (fast_backtest)
         
     '''
     Accessing Strategy(ies) analytics
     '''
-    output_directory='analytics/'
-    algo.portfolio_manager.analytics_save(output_directory)
+    if algo is not None:
+        output_directory='analytics/'
+        algo.portfolio_manager.analytics_save(output_directory)
+
+#    all_sharpes = pd.DataFrame(all_sharpes)
+    all_sharpes = pd.DataFrame({"key": all_sharpes.keys(), "value": all_sharpes.values()})
+    all_sharpes
+
+    
