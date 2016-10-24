@@ -8,11 +8,12 @@ from necessary_import import *; from AnalyticsManager import *;
 '''
 
 class StrategyPortfolio (object, AnalyticsManager):
-    def __init__ (self, portfolio_manager):
+    def __init__ (self, context, name):
         # by default, the Portfolio logger is set to output to the console
         # at a level sufficient to report problems.
-        name = ''
-        AnalyticsManager.__init__(self, analytics_name=name)
+        self.context = context
+        self.name = name
+        AnalyticsManager.__init__(self, analytics_name=name+'_StrategyPortfolio')
         self.set_log_option(logconsole=True, logfile=False, level=3)
         
         self.total_value = 0
@@ -20,16 +21,19 @@ class StrategyPortfolio (object, AnalyticsManager):
         # order_fill can be delayed by OrderManager)
         self.assets = dict()
 
-        self.columns = ['instrument','current_dollar', 'orderid', 'past_dollar']
+#        self.columns = ['instrument','current_dollar', 'orderid', 'past_dollar', 'current_pos', 'past_pos']
+        self.columns = ['instrument','pos', 'orderid']
         self.position_tracking = pd.DataFrame(columns=self.columns)
     
         self.allocation = 0
-        self.portfolio_manager = portfolio_manager
         
         return
         
 #    def get_total_assets_value (self):
 #        return
+
+    def create_empty_pos_dict (self):
+        return pd.DataFrame(columns=self.columns)
         
     def set_allocation(self, val):
         self.allocation = val
@@ -40,31 +44,94 @@ class StrategyPortfolio (object, AnalyticsManager):
             return self.allocation
         if allocation_type == 'dollar': 
 #            print("StrategyPortfolio: get_total_portfolio_value = " +str(self.portfolio_manager.get_total_portfolio_value()))
-            return self.allocation * self.portfolio_manager.get_total_portfolio_value()
+            return self.allocation * self.context.portfolio_manager.get_total_portfolio_value()
+            
+#    def get_instrument_current_value (self, inst):
+#        return self.position_tracking.current_dollar[self.position_tracking.instrument==inst.symbol]
         
-    def update_asset (self, inst, current_value, orderid=0):
+#    def update_asset (self, data, inst, current_value, orderid=0):
+#        #
+#        # update the amount of dollars to be hold by a strategy,
+#        # for a given instrument, and monitor order fill/unfill;
+#        #
+#        #
+#        df = self.position_tracking
+#        
+#        tgt_pos = self.context.order_manager.get_pos(data, inst, current_value)       
+#        
+#        past_dollar = 0.00
+#        past_pos = 0.00
+#        
+#        if inst in df['instrument'].values:
+#            past_dollar = df[df['instrument']==inst]['current_dollar']
+#            past_pos = float(df[df['instrument']==inst]['current_pos'])
+#            index = df.index[df.instrument == inst][0]
+#
+#            df.current_dollar.set_value(index,current_value)
+#            df.orderid.set_value(index,orderid)
+#            df.past_dollar.set_value(index,past_dollar)
+#            df.past_pos = past_pos
+#            df.current_pos = tgt_pos
+#            
+#        else:
+#            '''
+#            ignore_index will ignore the old ongoing index in your dataframe and 
+#            ensure that the first row actually starts with index 1 instead of 
+#            restarting with index 0.
+#            '''
+#            update = pd.DataFrame(np.array([[inst,current_value,orderid, past_dollar, tgt_pos, past_pos]]), columns=self.columns)
+#            df = df.append(update, ignore_index=True)
+#        
+#        diff_pos = tgt_pos - past_pos
+#        self.context.order_manager.add_position(inst, diff_pos)
+#        self.position_tracking = df
+#        
+#        msg = " position_tracking \n" +str(self.position_tracking)
+#        self.add_log('debug',msg)
+#        
+#        return
+        
+    def update_asset (self, data, inst, dollar, orderid=0):
         #
         # update the amount of dollars to be hold by a strategy,
         # for a given instrument, and monitor order fill/unfill;
         #
         #
-        df = self.position_tracking 
         
+        df = self.position_tracking
+        
+        current_value = 0
+        current_pos = 0
         if inst in df['instrument'].values:
-            past_dollar = df[df['instrument']==inst]['current_dollar']
+            current_pos = float(df[df['instrument']==inst]['pos'])
+            current_value = current_pos * float(data.current(symbol(inst),'price'))
+            
+        new_pos = 0
+        if dollar == 0 and current_pos > 0:
+            [pos, orderid] = self.context.order_manager.submit_orderposition(data, symbol(inst), pos=-current_pos)
+            new_pos = 0 
+        else:
+            diff_dollar = dollar - current_value        
+            [pos, orderid] = self.context.order_manager.submit_dollarvalue(data, symbol(inst), dollar=diff_dollar)
+            new_pos = current_pos+pos
+          
+
+        if inst in df['instrument'].values:
+#            past_dollar = df[df['instrument']==inst]['current_dollar']
+#            past_pos = float(df[df['instrument']==inst]['current_pos'])
             index = df.index[df.instrument == inst][0]
-            df.current_dollar.set_value(index,current_value)
+
+            df.pos.set_value(index,new_pos)
             df.orderid.set_value(index,orderid)
-            df.past_dollar.set_value(index,past_dollar)
+            
         else:
             '''
             ignore_index will ignore the old ongoing index in your dataframe and 
             ensure that the first row actually starts with index 1 instead of 
             restarting with index 0.
             '''
-            update = pd.DataFrame(np.array([[inst,current_value,orderid,0]]), columns=self.columns)
-            self.position_tracking = df.append(update, ignore_index=True)
-            
-        msg = " position_tracking \n" +str(df)
-        self.add_log('warning',msg)
+            update = pd.DataFrame(np.array([[inst,new_pos,orderid]]), columns=self.columns)
+            df = df.append(update, ignore_index=True)                    
+        
+        self.position_tracking = df
         return

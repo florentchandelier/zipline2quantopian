@@ -27,6 +27,9 @@ class OrderManager(object, AnalyticsManager):
         # store positions in $ value
         self.unfilled_orders = dict()
         
+        self.columns = ['instrument', 'pos']
+        self.orders = pd.DataFrame(columns=self.columns)
+        
         '''
         Analytics Manager
         '''
@@ -35,6 +38,40 @@ class OrderManager(object, AnalyticsManager):
 
         return
 
+    def create_empty_pos_dict (self):
+        return pd.DataFrame(columns=self.columns)
+        
+    def get_pos(self, data, inst, dollar_value):
+        return int(np.floor(dollar_value /float(data.current(symbol(inst),'price')) ))
+        
+    def submit_dollarvalue (self, data, inst, dollar=0):
+        pos_orderid = self.send_order_through(data, inst, dollar=dollar, order_style = 'limit')        
+        msg = "pos_orderid: "+str(pos_orderid)
+        self.add_log('warning',msg)
+        return pos_orderid
+        
+    def submit_orderposition (self, data, inst, pos=0):
+        pos_orderid = self.send_order_through(data, inst, pos=pos, order_type = 'size', order_style = 'limit')        
+        msg = "pos_orderid: "+str(pos_orderid)
+        self.add_log('warning',msg)        
+        return pos_orderid
+
+    def add_position (self, inst, pos):
+        """
+        add orders to the order book; only limit orders are used
+        """
+
+        if inst in self.orders['instrument'].values:
+            current_pos = self.orders[self.orders['instrument']==inst]['pos']
+            current_pos = float(current_pos)
+            index = self.orders.index[self.orders.instrument == inst][0]
+            self.orders.pos.set_value(index,current_pos+pos)
+        else:
+            update = pd.DataFrame(np.array([[inst,pos]]), columns=self.columns)
+            self.orders = self.orders.append(update, ignore_index=True)
+            
+        return
+        
     def unfilled_store (self, context, data):
         """
         catch unfilled orders at end of day, and convert positions into $
@@ -162,10 +199,14 @@ class OrderManager(object, AnalyticsManager):
                                          op=operator.add)
         return
     
-    def send_order_through(self, data, instrument, dollar_value=0, order_style='limit'):
+    def send_order_through(self, data, instrument, dollar=0, pos=0, order_type = 'dollar', order_style='limit'):
         '''
-        MarketOrder()
-        LimitOrder()
+        order_type:
+                dollar
+                size
+        order_styles:
+            MarketOrder()
+            LimitOrder()
         '''
         
         # zipline
@@ -173,16 +214,19 @@ class OrderManager(object, AnalyticsManager):
         if data_freq == 'daily': order_style = 'market'
         # endof zipline        
         
-        nb_shares = int(np.floor(dollar_value /float(data.current(instrument,'price')) ))
+        if order_type == 'dollar':
+            pos = int(np.floor(dollar /float(data.current(instrument,'price')) ))
         
 #        print("OM -  inst: " + str(instrument.symbol) + " $: " +str(dollar_value))
 #        print ( str(get_datetime()) + " Order: inst = " +str(instrument.symbol) +" size = " +str(nb_shares) + " Price = " + str(data.current(instrument, 'price')))        
 
+        pos = int(np.floor(pos))
         if order_style is 'limit':
-            order(instrument, nb_shares, style=LimitOrder(data.current(instrument, 'price')) )
+            orderid = order(instrument, pos, style=LimitOrder(data.current(instrument, 'price')) )
         elif order_style is 'market':
-            order(instrument, nb_shares)
-        return
+            orderid = order(instrument, pos)
+            
+        return [pos, orderid]
         
     def add_percent_orders(self, data, input_dict):
         # get current positions percentage of portfolio

@@ -31,7 +31,7 @@ class StrategyDesign(object, AnalyticsManager):
         self.schedule_func_list = []
         self.instruments = dict()
         
-        self.portfolio = StrategyPortfolio(context.portfolio_manager)
+        self.portfolio = StrategyPortfolio(context, name)
         self.portfolio.set_allocation(0)
         return
     
@@ -42,38 +42,61 @@ class StrategyDesign(object, AnalyticsManager):
             self._send_percent_order (data, value)
         return
     
+#    def _send_percent_order (self, data, pct):
+#        # for a strategy, what makes sense is the dollar value for a position
+#        # it should be the job of the OrderManager to get proper position size
+#        # based on market value when order will be filled (there might be 
+#        # priorities for orders to be filled, thus last time position sizing
+#        # is a good practice)
+#        target_dollar_value = dict()
+#        
+#        allocated_value = self.portfolio.get_allocation(allocation_type='dollar')
+#        # convert each instrument pct into a dollar value position
+#        for inst in pct:
+#            # inherently takes into account strategy allocation in portfolio
+#            dollar_value = pct[inst] *allocated_value
+#            # update desired strategy targeted allocation
+##            self.portfolio.assets[inst] = dollar_value
+##            tgt_dollar_value = self.portfolio.update_asset(inst.symbol, dollar_value)
+#            self.portfolio.update_asset(data, inst.symbol, dollar_value)
+#            
+#            current_value = self.context.portfolio.positions[inst].amount *data[inst].price
+#            
+##            current_value = self.portfolio.get_instrument_current_value(inst)            
+#            
+#            msg = " StrategyDesign: Price consolidation should not happen inside Strategy, but Global OderManager level"
+#            self.add_log('warning',msg)
+#            
+#            current_value = self.context.portfolio.positions[inst].amount *data.current(inst, 'price')
+#            tgt_dollar_value = dollar_value - current_value
+#            target_dollar_value = merge_dicts(target_dollar_value, {inst:tgt_dollar_value})
+#            
+##            print("SD - inst: " + str(inst.symbol) + " desired %: " + str(pct[inst]) + " desired $: " +str(dollar_value) + " current $: " + str(current_value) + " target $: " + str(tgt_dollar_value))
+#        
+#        #
+#        # target_dollar_value: dictionary of positions target in dollar value
+#        # dict{inst; dollarvalue}
+#        #
+#        self.context.order_manager.orderbook_consolidator (target_dollar_value)
+#        return
+    
     def _send_percent_order (self, data, pct):
         # for a strategy, what makes sense is the dollar value for a position
         # it should be the job of the OrderManager to get proper position size
         # based on market value when order will be filled (there might be 
         # priorities for orders to be filled, thus last time position sizing
         # is a good practice)
-        target_dollar_value = dict()
         
         allocated_value = self.portfolio.get_allocation(allocation_type='dollar')
         # convert each instrument pct into a dollar value position
         for inst in pct:
             # inherently takes into account strategy allocation in portfolio
+                
             dollar_value = pct[inst] *allocated_value
             # update desired strategy targeted allocation
 #            self.portfolio.assets[inst] = dollar_value
-            self.portfolio.update_asset(inst.symbol, dollar_value)
-            
-#            current_value = self.context.portfolio.positions[inst].amount *data[inst].price
-            msg = " StrategyDesign: Price consolidation should not happen inside Strategy, but Global OderManager level"
-            self.add_log('warning',msg)
-            
-            current_value = self.context.portfolio.positions[inst].amount *data.current(inst, 'price')
-            tgt_dollar_value = dollar_value - current_value
-            target_dollar_value = merge_dicts(target_dollar_value, {inst:tgt_dollar_value})
-            
-#            print("SD - inst: " + str(inst.symbol) + " desired %: " + str(pct[inst]) + " desired $: " +str(dollar_value) + " current $: " + str(current_value) + " target $: " + str(tgt_dollar_value))
-        
-        #
-        # target_dollar_value: dictionary of positions target in dollar value
-        # dict{inst; dollarvalue}
-        #
-        self.context.order_manager.orderbook_consolidator (target_dollar_value)
+#            tgt_dollar_value = self.portfolio.update_asset(inst.symbol, dollar_value)
+            self.portfolio.update_asset(data, inst.symbol, dollar_value)
         return
         
     def set_name(self, value):
