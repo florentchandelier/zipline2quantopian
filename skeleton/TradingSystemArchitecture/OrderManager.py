@@ -55,6 +55,24 @@ class OrderManager(object, AnalyticsManager):
         msg = "pos_orderid: "+str(pos_orderid)
         self.add_log('warning',msg)        
         return pos_orderid
+        
+    def get_order_status (self, orderid):
+        status = get_order(orderid)
+        if status is not None:        
+            return status.filled
+        else:
+            return False
+        
+    def get_strategies_orderstatus (self, context, data):
+        
+        for strategy in context.portfolio_manager.strategies:
+            for orderid in strategy.portfolio.get_orders():
+                status = self.get_order_status(orderid)
+                if status is not 0:
+                    strategy.portfolio.orderfilled (orderid, status)
+#                print ('Order Status: ' +str(self.get_order_status(orderid)))
+                
+        return
 
     def add_position (self, inst, pos):
         """

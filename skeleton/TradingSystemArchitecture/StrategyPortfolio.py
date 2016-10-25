@@ -22,7 +22,7 @@ class StrategyPortfolio (object, AnalyticsManager):
         self.assets = dict()
 
 #        self.columns = ['instrument','current_dollar', 'orderid', 'past_dollar', 'current_pos', 'past_pos']
-        self.columns = ['instrument','pos', 'orderid']
+        self.columns = ['instrument','pos', 'orderid', 'filled']
         self.position_tracking = pd.DataFrame(columns=self.columns)
     
         self.allocation = 0
@@ -37,6 +37,35 @@ class StrategyPortfolio (object, AnalyticsManager):
         
     def set_allocation(self, val):
         self.allocation = val
+        return
+        
+    def get_orders (self):
+        orderid = []
+        df = self.position_tracking
+        
+        dropouts = []
+        for i in range(len(df)):
+            order = df.iloc[i]
+            
+            if abs(float(order.pos)) - abs(float(order.filled)) > 0:
+                orderid.append(order.orderid)
+            elif order.pos == 0:
+                '''
+                clean up if instrument is not allocated
+                '''
+                dropouts.append(i)
+                
+        df = df.drop(df.index[dropouts])
+        self.position_tracking = df
+        return orderid
+        
+    def orderfilled (self, orderid, status):
+        df = self.position_tracking
+        
+        index = df.index[df.orderid == orderid][0]
+        df.filled.set_value(index, status)
+        
+        self.position_tracking = df
         return
         
     def get_allocation (self, allocation_type=None):
@@ -115,7 +144,7 @@ class StrategyPortfolio (object, AnalyticsManager):
             [pos, orderid] = self.context.order_manager.submit_dollarvalue(data, symbol(inst), dollar=diff_dollar)
             new_pos = current_pos+pos
           
-
+        filled = 0
         if inst in df['instrument'].values:
 #            past_dollar = df[df['instrument']==inst]['current_dollar']
 #            past_pos = float(df[df['instrument']==inst]['current_pos'])
@@ -123,6 +152,7 @@ class StrategyPortfolio (object, AnalyticsManager):
 
             df.pos.set_value(index,new_pos)
             df.orderid.set_value(index,orderid)
+            df.orderid.set_value(index,filled)
             
         else:
             '''
@@ -130,7 +160,7 @@ class StrategyPortfolio (object, AnalyticsManager):
             ensure that the first row actually starts with index 1 instead of 
             restarting with index 0.
             '''
-            update = pd.DataFrame(np.array([[inst,new_pos,orderid]]), columns=self.columns)
+            update = pd.DataFrame(np.array([[inst,new_pos,orderid, filled]]), columns=self.columns)
             df = df.append(update, ignore_index=True)                    
         
         self.position_tracking = df
